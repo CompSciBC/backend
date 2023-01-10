@@ -34,14 +34,14 @@ public class NwsWeatherService {
     }
 
     public Forecast queryForecastFromDynamoDB(String officeHashKey, String gridX_gridY_RangeKey){
-        Object response = dynamoDBConnector.queryFromDynamoDB(Forecast.class, officeHashKey, gridX_gridY_RangeKey);
+        Object response = dynamoDBConnector.queryFromDynamoDB(new Forecast(), officeHashKey, gridX_gridY_RangeKey);
         return (Forecast)response;
     }
 
     public Forecast saveAndRetrieveObjectFromDynamoDBDemo(){
         // Step 1: Create Data object
         Forecast randomForecast = new Forecast();
-        randomForecast.setOffice("ABC");
+        randomForecast.setOffice("HDO");
         randomForecast.setGridX_gridY("12_20");
         randomForecast.setForecast_content("some content3");
         randomForecast.setTimestamp(Instant.now().toString());
@@ -110,6 +110,7 @@ public class NwsWeatherService {
         try {
             Forecast savedForecast= queryForecastFromDynamoDB("SEW", "124, 67");
             Instant savedForecastTimestamp = Instant.parse(savedForecast.getTimestamp());
+            
             long timeElapsed = Duration.between(savedForecastTimestamp,currentTime).toMinutes();
             if (timeElapsed > ForecastPersistTime) {
                 // get updated forecast by calling weather api
@@ -128,13 +129,11 @@ public class NwsWeatherService {
         } catch(Exception e) {
             ForecastDTO newForecastDTO = new ForecastDTO();
             newForecastDTO.setDefaultValues();
+            newForecastDTO.setTimestamp(currentTime.toString());
             Forecast newForecast = new Forecast();
             BeanUtils.copyProperties(newForecastDTO, newForecast);
             saveForecastToDynamoDB(newForecast);
             return "Saving new forecast to DynamoDB" + e.toString();
         }
-        // return currentTime.toString();
-        // JSONObject forecast = getForecast(gridInfo);
-        // return forecast.toString();
     }
 }
