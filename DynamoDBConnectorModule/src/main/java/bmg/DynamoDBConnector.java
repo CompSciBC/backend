@@ -5,11 +5,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DynamoDBConnector {
     private final DynamoDBMapper dynamoDBMapper;
-    private final DynamoDbConfig dynamoDbConfig;
 
     public DynamoDBConnector(DynamoDBMapper dynamoDBMapper, DynamoDbConfig dynamoDbConfig) {
         this.dynamoDBMapper = dynamoDBMapper;
-        this.dynamoDbConfig = dynamoDbConfig;
     }
 
     // TODO: use generics
