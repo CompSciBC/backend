@@ -6,14 +6,14 @@ import java.util.Objects;
 /**
  * Represents an HTTP response object
  */
-public class Response<T> {
+public class Response2<T> {
     private LocalDateTime timestamp;
     private Integer status;
     private T data;
     private String message;
     private String path;
 
-    public Response() {
+    public Response2() {
         this.timestamp = LocalDateTime.now();
     }
 
@@ -22,7 +22,7 @@ public class Response<T> {
         if (this == o)
             return true;
 
-        if (!(o instanceof Response<?> response))
+        if (!(o instanceof Response2<?> response))
             return false;
 
         return Objects.equals(timestamp, response.timestamp)
