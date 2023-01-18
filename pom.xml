@@ -9,7 +9,8 @@
 		<module>LocationModule</module>
 		<module>RestaurantModule</module>
 		<module>WeatherModule</module>
-	</modules>
+        <module>ChatModule</module>
+    </modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -63,6 +64,8 @@
 			<artifactId>json</artifactId>
 			<version>20220924</version>
 		</dependency>
+
+
 	</dependencies>
 
 </project>
