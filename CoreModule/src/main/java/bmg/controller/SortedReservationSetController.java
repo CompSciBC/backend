@@ -19,6 +19,7 @@ import java.util.List;
 @RequestMapping("/api/reservations-by-status")
 @RequiredArgsConstructor
 public class SortedReservationSetController extends Controller<SortedReservationSet> {
+
     private final ReservationService SVC;
 
     /**

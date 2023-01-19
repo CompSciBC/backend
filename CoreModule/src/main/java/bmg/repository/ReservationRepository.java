@@ -19,6 +19,7 @@ import java.util.Map;
 @Repository
 @RequiredArgsConstructor
 public class ReservationRepository {
+
     private final DynamoDBMapper MAPPER;
 
     /**
