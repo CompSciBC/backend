@@ -86,7 +86,6 @@ public abstract class Controller<T> {
         return responseCodeConflict(e.getMessage());
     }
 
-
     /**
      * Creates a response entity indicating that the request was successful
      *
