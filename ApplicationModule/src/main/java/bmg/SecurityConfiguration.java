@@ -14,6 +14,11 @@ public class SecurityConfiguration {
         // specify authorization requirements for each request path
         http.authorizeHttpRequests().anyRequest().permitAll();
 
+        // cross site request forgery
+        // all methods resulting in data change (POST, DELETE, etc.) are blocked by default
+        // by spring security; ignore for selected paths
+        http.csrf().ignoringRequestMatchers("/api/**");
+
         return http.build();
     }
 }
