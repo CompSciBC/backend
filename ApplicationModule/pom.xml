@@ -43,6 +43,11 @@
             <artifactId>DynamoDBConnectorModule</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>bmg</groupId>
+            <artifactId>CoreModule</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

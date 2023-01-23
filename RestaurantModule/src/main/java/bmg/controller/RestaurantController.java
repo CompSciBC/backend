@@ -46,7 +46,7 @@ public class RestaurantController {
      * @return A list of restaurants matching the given parameters
      */
     @GetMapping(value = {"", "/{source}"})
-    public ResponseEntity<Response<List<Restaurant>>> getAll(
+    public ResponseEntity<Response2<List<Restaurant>>> getAll(
             @PathVariable(required = false) String source,
             @RequestParam(required = false) String address1,
             @RequestParam(required = false) String address2,
@@ -100,7 +100,7 @@ public class RestaurantController {
             data = new ArrayList<>();
         }
 
-        Response<List<Restaurant>> response = new Response<>();
+        Response2<List<Restaurant>> response = new Response2<>();
         response.setStatus(status.value());
         response.setMessage(message);
         response.setData(data);
