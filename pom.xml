@@ -10,14 +10,10 @@
 		<module>RestaurantModule</module>
 		<module>WeatherModule</module>
 		<module>DynamoDBConnectorModule</module>
-<<<<<<< HEAD
         <module>ChatModule</module>
         <module>GuidebookModule</module>
-    </modules>
-=======
 		<module>CoreModule</module>
-	</modules>
->>>>>>> main
+    </modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -91,9 +87,6 @@
 			<artifactId>json</artifactId>
 			<version>20220924</version>
 		</dependency>
-<<<<<<< HEAD
-
-		<!-- Set up connection to AWS DynamoDB -->
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-dynamodb</artifactId>
@@ -104,8 +97,6 @@
 			<artifactId>spring-data-dynamodb</artifactId>
 			<version>5.1.0</version>
 		</dependency>
-=======
->>>>>>> main
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
