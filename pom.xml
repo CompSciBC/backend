@@ -12,6 +12,7 @@
 		<module>DynamoDBConnectorModule</module>
 <<<<<<< HEAD
         <module>ChatModule</module>
+        <module>GuidebookModule</module>
     </modules>
 =======
 		<module>CoreModule</module>
