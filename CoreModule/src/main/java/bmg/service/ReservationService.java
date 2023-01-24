@@ -1,13 +1,11 @@
 package bmg.service;
 
 import bmg.model.Reservation;
-import bmg.model.SortedReservationSet;
 import bmg.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -32,66 +30,6 @@ public class ReservationService {
             throw new NoSuchElementException("Reservation with id="+id+" does not exist.");
 
         return reservation;
-    }
-
-    /**
-     * Finds all reservations for the given index and id
-     *
-     * @param index A reservation index
-     * @param id The id of a property, host, or guest
-     * @return A sorted reservation set
-     */
-    public SortedReservationSet findAllByStatus(Reservation.Index index, String id) {
-        LocalDateTime now = LocalDateTime.now();
-        return SortedReservationSet
-                .builder()
-                .CURRENT(findAllCurrent(index, id, now))
-                .UPCOMING(findAllUpcoming(index, id, now))
-                .PAST(findAlPast(index, id, now))
-                .build();
-    }
-
-    /**
-     * Finds all current reservations, as defined in {@link SortedReservationSet}
-     *
-     * @param index A reservation index
-     * @param id The id of a property, host, or guest
-     * @param now The current date/time
-     * @return A list of reservations
-     */
-    public List<Reservation> findAllCurrent(Reservation.Index index, String id, LocalDateTime now) {
-        return REPO.findAllCheckInOnOrBeforeCheckOutAfter(
-                index,
-                id,
-                LocalDateTime.of(now.toLocalDate(), LocalTime.MAX),
-                now);
-    }
-
-    /**
-     * Finds all upcoming reservations, as defined in {@link SortedReservationSet}
-     *
-     * @param index A reservation index
-     * @param id The id of a property, host, or guest
-     * @param now The current date/time
-     * @return A list of reservations
-     */
-    public List<Reservation> findAllUpcoming(Reservation.Index index, String id, LocalDateTime now) {
-        return REPO.findAllCheckInAfter(
-                index,
-                id,
-                LocalDateTime.of(now.toLocalDate(), LocalTime.MAX));
-    }
-
-    /**
-     * Finds all past reservations, as defined in {@link SortedReservationSet}
-     *
-     * @param index A reservation index
-     * @param id The id of a property, host, or guest
-     * @param now The current date/time
-     * @return A list of reservations
-     */
-    public List<Reservation> findAlPast(Reservation.Index index, String id, LocalDateTime now) {
-        return REPO.findAllCheckOutBefore(index, id, now);
     }
 
     /**
