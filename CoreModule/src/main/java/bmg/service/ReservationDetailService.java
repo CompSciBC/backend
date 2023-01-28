@@ -56,6 +56,7 @@ public class ReservationDetailService {
             String propertyId = reservation.getPropertyId();
 
             if (!properties.containsKey(propertyId))
+                // store properties already seen to prevent duplicate queries
                 properties.put(propertyId, P_REPO.findOne(propertyId));
 
             details.add(new ReservationDetail(reservation, properties.get(propertyId)));
@@ -74,10 +75,11 @@ public class ReservationDetailService {
     private List<ReservationDetail> findAllCurrent(Reservation.Index index, String id, LocalDateTime now) {
         return convertToDetail(
                 R_REPO.findAllCheckInOnOrBeforeCheckOutAfter(
-                index,
-                id,
-                LocalDateTime.of(now.toLocalDate(), LocalTime.MAX),
-                now));
+                        index,
+                        id,
+                        index != Reservation.Index.GUEST,
+                        LocalDateTime.of(now.toLocalDate(), LocalTime.MAX),
+                        now));
     }
 
     /**
@@ -91,9 +93,10 @@ public class ReservationDetailService {
     private List<ReservationDetail> findAllUpcoming(Reservation.Index index, String id, LocalDateTime now) {
         return convertToDetail(
                 R_REPO.findAllCheckInAfter(
-                index,
-                id,
-                LocalDateTime.of(now.toLocalDate(), LocalTime.MAX)));
+                        index,
+                        id,
+                        index != Reservation.Index.GUEST,
+                        LocalDateTime.of(now.toLocalDate(), LocalTime.MAX)));
     }
 
     /**
@@ -105,6 +108,11 @@ public class ReservationDetailService {
      * @return A list of reservation details
      */
     private List<ReservationDetail> findAllPast(Reservation.Index index, String id, LocalDateTime now) {
-        return convertToDetail(R_REPO.findAllCheckOutBefore(index, id, now));
+        return convertToDetail(
+                R_REPO.findAllCheckOutBefore(
+                        index,
+                        id,
+                        index != Reservation.Index.GUEST,
+                        now));
     }
 }
