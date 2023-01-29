@@ -2,8 +2,8 @@ package bmg.service;
 
 import bmg.model.Property;
 import bmg.model.Reservation;
-import bmg.model.ReservationDetail;
-import bmg.model.SortedReservationDetailSet;
+import bmg.dto.ReservationDetail;
+import bmg.dto.SortedReservationDetailSet;
 import bmg.repository.PropertyRepository;
 import bmg.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;

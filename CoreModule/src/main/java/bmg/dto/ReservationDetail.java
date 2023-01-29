@@ -1,5 +1,7 @@
-package bmg.model;
+package bmg.dto;
 
+import bmg.model.Property;
+import bmg.model.Reservation;
 import lombok.Getter;
 
 /**
