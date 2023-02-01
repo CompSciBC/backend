@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * entry will be marked with isPrimary = true, and all others (copies) will be
  * isPrimary = false/null.
  */
-@DynamoDBTable(tableName = "reservation")
+@DynamoDBTable(tableName = "bmg_reservation")
 @Data
 public class Reservation {
     public static final String HOST_ID_CHECK_IN_INDEX = "hostId-checkIn-index";

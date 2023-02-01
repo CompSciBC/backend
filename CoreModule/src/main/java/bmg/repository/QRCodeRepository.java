@@ -23,7 +23,7 @@ public class QRCodeRepository {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
-    private static final String QR_FOLDER = "invites/QR/";
+    private static final String QR_FOLDER = "inviteQR/";
 
     /**
      * Checks if a QR code with the given id exists
