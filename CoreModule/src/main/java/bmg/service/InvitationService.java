@@ -18,6 +18,12 @@ public class InvitationService {
     @Value("${client.route.add-reservation}")
     private String addReservationRoute;
 
+    /**
+     * Sends an invitation email for the given reservation id
+     *
+     * @param id A reservation id
+     * @param invite An invitation
+     */
     public void sendInvites(String id, Invitation invite) {
         String defaultMessage = String.format("%s has invited you to join BeMyGuest.\n\n", invite.getGuestName());
         String optionalMessage = invite.getMessage();
