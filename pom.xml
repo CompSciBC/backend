@@ -9,7 +9,7 @@
 		<module>LocationModule</module>
 		<module>RestaurantModule</module>
 		<module>WeatherModule</module>
-		<module>DynamoDBConnectorModule</module>
+		<module>AWSConnectorModule</module>
 		<module>CoreModule</module>
 	</modules>
 	<parent>
@@ -32,6 +32,13 @@
 				<groupId>com.amazonaws</groupId>
 				<artifactId>aws-java-sdk-bom</artifactId>
 				<version>1.12.221</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.awspring.cloud</groupId>
+				<artifactId>spring-cloud-aws-dependencies</artifactId>
+				<version>2.3.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -59,7 +66,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>

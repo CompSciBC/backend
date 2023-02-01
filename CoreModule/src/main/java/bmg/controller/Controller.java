@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -72,6 +73,17 @@ public abstract class Controller<T> {
      */
     @ExceptionHandler({IllegalArgumentException.class})
     private ResponseEntity<Response<T>> handleException(IllegalArgumentException e) {
+        return responseCodeBadRequest(e.getMessage());
+    }
+
+    /**
+     * Handles MissingServletRequestParameterException
+     *
+     * @param e An MissingServletRequestParameterException
+     * @return A 400 Bad Request response entity
+     */
+    @ExceptionHandler({MissingServletRequestParameterException.class})
+    private ResponseEntity<Response<T>> handleException(MissingServletRequestParameterException e) {
         return responseCodeBadRequest(e.getMessage());
     }
 

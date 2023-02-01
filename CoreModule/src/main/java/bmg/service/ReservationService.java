@@ -1,6 +1,7 @@
 package bmg.service;
 
 import bmg.model.Reservation;
+import bmg.repository.QRCodeRepository;
 import bmg.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,20 +17,48 @@ import java.util.*;
 public class ReservationService {
 
     private final ReservationRepository REPO;
+    private final QRCodeRepository QR_REPO;
 
     /**
-     * Finds the reservation with the given id
+     * Finds the primary reservation with the given id
      *
      * @param id A reservation id
-     * @return The reservation with the given id
+     * @return The primary reservation with the given id
      */
     public Reservation findOne(String id) {
-        Reservation reservation = REPO.findOne(id);
+        List<Reservation> reservations = REPO.findAll(id, true);
+        assertListNotEmpty(id, reservations);
 
-        if (reservation == null)
-            throw new NoSuchElementException("Reservation with id="+id+" does not exist.");
+        // there should never be more than one primary reservation with a given id
+        assert(reservations.size() == 1);
+        return reservations.get(0);
+    }
 
-        return reservation;
+    /**
+     * Finds all reservations with the given id
+     *
+     * @param id A reservation id
+     * @return A list of reservations
+     */
+    public List<Reservation> findAll(String id) {
+        List<Reservation> reservations = REPO.findAll(id, false);
+        assertListNotEmpty(id, reservations);
+        return REPO.findAll(id, false);
+    }
+
+    /**
+     * Finds all reservations by the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A list of reservations
+     */
+    public List<Reservation> findAll(Reservation.Index index, String id) {
+
+        // if index is property or host, return the primary reservations only
+        // if index is guest, return all reservations
+        boolean primaryOnly = index != Reservation.Index.GUEST;
+        return REPO.findAll(index, id, primaryOnly);
     }
 
     /**
@@ -42,39 +71,55 @@ public class ReservationService {
     }
 
     /**
-     * Updates the identified reservation with the given updates
+     * Updates an existing reservation with the given updates
      *
      * @param id A reservation id
      * @param updates A map of attribute/value pairs
      */
-    public void updateOne(String id, Map<String, Object> updates) {
-        Reservation reservation = findOne(id);
+    public void updateAll(String id, Map<String, Object> updates) {
 
-        for (Map.Entry<String, Object> update : updates.entrySet()) {
-            String attribute = update.getKey();
-            Object value = update.getValue();
+        // all existing reservations with the given id
+        List<Reservation> reservations = findAll(id);
 
-            switch (attribute.toLowerCase()) {
-                case "hostid" -> reservation.setHostId((String) value);
-                case "propertyid" -> reservation.setPropertyId((String) value);
-                case "guestid" -> reservation.setGuestId((String) value);
-                case "numguests" -> reservation.setNumGuests((Integer) value);
-                case "checkin" -> reservation.setCheckIn(LocalDateTime.parse((String) value));
-                case "checkout" -> reservation.setCheckOut(LocalDateTime.parse((String) value));
-                case "reasonforstay" -> reservation.setReasonForStay((String) value);
-                default -> throw new IllegalArgumentException(
-                        "Attribute \"" + attribute + "\" is not applicable or cannot be modified.");
+        // update each reservation
+        for (Reservation reservation : reservations) {
+
+            // for each updated attribute, set the new value on the current reservation item
+            for (Map.Entry<String, Object> update : updates.entrySet()) {
+                String attribute = update.getKey();
+                Object value = update.getValue();
+
+                switch (attribute.toLowerCase()) {
+                    case "numguests" -> reservation.setNumGuests((Integer) value);
+                    case "checkin" -> reservation.setCheckIn(LocalDateTime.parse((String) value));
+                    case "checkout" -> reservation.setCheckOut(LocalDateTime.parse((String) value));
+                    case "reasonforstay" -> reservation.setReasonForStay((String) value);
+                    default -> throw new IllegalArgumentException(
+                            "Attribute="+attribute+" is not applicable or cannot be modified.");
+                }
             }
+            REPO.updateOne(reservation);
         }
-        REPO.saveOne(reservation);
     }
 
     /**
-     * Deletes the reservation with the given id
+     * Deletes all reservations with the given id as well as the associated invite QR code
      *
      * @param id A reservation id
      */
-    public void deleteOne(String id) {
-        REPO.deleteOne(findOne(id));
+    public void deleteAll(String id) {
+        REPO.deleteAll(id);
+        QR_REPO.deleteOne(id);
+    }
+
+    /**
+     * Throws a NoSuchElementException if the given list is empty
+     *
+     * @param id A reservation id
+     * @param reservations A list of reservations
+     */
+    private void assertListNotEmpty(String id, List<Reservation> reservations) {
+        if (reservations == null || reservations.size() == 0)
+            throw new NoSuchElementException("Reservation with id="+id+" does not exist.");
     }
 }

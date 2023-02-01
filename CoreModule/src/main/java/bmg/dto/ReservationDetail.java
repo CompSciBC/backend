@@ -1,5 +1,7 @@
-package bmg.model;
+package bmg.dto;
 
+import bmg.model.Property;
+import bmg.model.Reservation;
 import lombok.Getter;
 
 /**
@@ -12,13 +14,14 @@ public class ReservationDetail extends Reservation {
 
     public ReservationDetail(Reservation reservation, Property property) {
         setId(reservation.getId());
+        setGuestId(reservation.getGuestId());
         setHostId(property.getHostId());
         setPropertyId(property.getId());
-        setGuestId(reservation.getGuestId());
         setNumGuests(reservation.getNumGuests());
         setCheckIn(reservation.getCheckIn());
         setCheckOut(reservation.getCheckOut());
         setReasonForStay(reservation.getReasonForStay());
+        setIsPrimary(reservation.getIsPrimary());
         propertyName = property.getName();
         address = property.getAddress();
     }
