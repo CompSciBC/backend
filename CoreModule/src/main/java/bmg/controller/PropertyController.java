@@ -87,6 +87,12 @@ public class PropertyController extends Controller<Property> {
         return responseCodeNoContent();
     }
 
+    /**
+     * Deletes the properties with the given ids
+     *
+     * @param ids A list of property ids (max of 25 items)
+     * @return A response entity confirming the deletion
+     */
     @DeleteMapping("")
     public ResponseEntity<Response<Property>> deleteAll(@RequestBody List<String> ids) {
         SVC.deleteAll(ids);
