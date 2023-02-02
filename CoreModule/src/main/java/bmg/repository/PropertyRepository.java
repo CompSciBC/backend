@@ -56,7 +56,7 @@ public class PropertyRepository {
      * the transaction is cancelled and no properties are saved.
      *
      * @param properties A list of properties (max of 33 items)
-     * @throws IllegalArgumentException If properties contains more than 30 items
+     * @throws IllegalArgumentException If properties contains more than 33 items
      */
     public void saveAll(List<Property> properties) throws IllegalArgumentException {
         // transactionWrite() uses transactionWriteItems().
