@@ -4,10 +4,7 @@ import bmg.converter.LocalDateTimeConverter;
 import bmg.model.Reservation;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTransactionWriteExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.TransactionWriteRequest;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.TransactionCanceledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * Provides CRUD operations for {@link Reservation} objects
@@ -197,62 +193,29 @@ public class ReservationRepository {
     }
 
     /**
-     * Saves the given reservation
+     * Saves the given list of reservations
      *
-     * @param reservation A reservation
+     * @param reservations A list of reservations
      */
-    public void saveOne(Reservation reservation) {
-        String id = reservation.getId();
-        boolean idDoesNotYetExist = id == null || findAll(id, false).size() == 0;
+    public void saveAll(List<Reservation> reservations) {
 
-        if (idDoesNotYetExist) {
-            // this is the primary reservation
-            reservation.setIsPrimary(true);
-            MAPPER.save(reservation);
+        for (Reservation reservation : reservations) {
 
-        } else {
-            // reservation is a copy/non-primary. Ensure that it is not a duplicate entry.
-            // Only one instance of an id + guestId combo may exist in the database
-            reservation.setIsPrimary(false);
+            // check if this id already exists in the database
+            List<Reservation> existingPrimary = findAll(reservation.getId(), true);
 
-            // checks that the combination of id + guestId does not already exist in the database
-            DynamoDBTransactionWriteExpression ifKeysDoNotExist =
-                    new DynamoDBTransactionWriteExpression()
-                            .withConditionExpression(
-                                    "attribute_not_exists(id) AND attribute_not_exists(guestId)");
-            try {
-                MAPPER.transactionWrite(
-                        new TransactionWriteRequest()
-                                .addPut(reservation, ifKeysDoNotExist));
+            if (existingPrimary.size() == 0) {
+                // this is a brand-new reservation; set as primary and put reservation
+                reservation.setIsPrimary(true);
 
-            } catch (TransactionCanceledException e) {
-                throw new TransactionCanceledException(
-                        String.format("Duplicate entry for id=%s, guestId=%s.",
-                                id,
-                                reservation.getGuestId()));
+            } else {
+                // id already exists in the database; if this reservation has the same
+                // guest id as the primary, then this is the primary, otherwise, it is not
+                Reservation primary = existingPrimary.get(0);
+                boolean same = primary.getGuestId().equals(reservation.getGuestId());
+                reservation.setIsPrimary(same);
             }
-        }
-    }
-
-    /**
-     * Updates an existing reservation with the given updates
-     *
-     * @param updatedReservation A reservation
-     */
-    public void updateOne(Reservation updatedReservation) {
-        boolean reservationExists = MAPPER.load(updatedReservation) != null;
-
-        if (reservationExists) {
-            // save only if id + guestId combo exists in the database
-            MAPPER.save(updatedReservation);
-
-        } else {
-            // id + guestId combo does not exist
-            // use #saveOne(Reservation) to save a new reservation instead
-            throw new NoSuchElementException(
-                    String.format("Reservation with id=%s, guestId=%s does not exist.",
-                            updatedReservation.getId(),
-                            updatedReservation.getGuestId()));
+            MAPPER.save(reservation);
         }
     }
 

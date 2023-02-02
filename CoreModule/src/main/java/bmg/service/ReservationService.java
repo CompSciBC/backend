@@ -62,16 +62,16 @@ public class ReservationService {
     }
 
     /**
-     * Saves the given reservation
+     * Saves the given list of reservations
      *
-     * @param reservation A reservation
+     * @param reservations A list of reservations
      */
-    public void saveOne(Reservation reservation) {
-        REPO.saveOne(reservation);
+    public void saveAll(List<Reservation> reservations) {
+        REPO.saveAll(reservations);
     }
 
     /**
-     * Updates an existing reservation with the given updates
+     * Updates all reservations with the given id with the given updates
      *
      * @param id A reservation id
      * @param updates A map of attribute/value pairs
@@ -98,8 +98,8 @@ public class ReservationService {
                             "Attribute="+attribute+" is not applicable or cannot be modified.");
                 }
             }
-            REPO.updateOne(reservation);
         }
+        REPO.saveAll(reservations);
     }
 
     /**

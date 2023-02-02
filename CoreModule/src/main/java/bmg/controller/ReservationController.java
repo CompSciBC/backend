@@ -59,15 +59,20 @@ public class ReservationController extends Controller<Reservation> {
     }
 
     /**
-     * Creates a new reservation
+     * Saves the given list of reservations
      *
-     * @param reservation A reservation
-     * @return A response entity containing a reservation
+     * @param reservations A list of reservations
+     * @return A response entity containing a list of reservations
      */
     @PostMapping("")
-    public ResponseEntity<Response<Reservation>> createOne(@RequestBody Reservation reservation) {
-        SVC.saveOne(reservation);
-        return responseCodeCreated(List.of(reservation), "/"+reservation.getId());
+    public ResponseEntity<Response<Reservation>> saveAll(@RequestBody List<Reservation> reservations) {
+        SVC.saveAll(reservations);
+
+        String location = reservations.size() == 1
+                ? reservations.get(0).getId()
+                : "...";
+
+        return responseCodeCreated(reservations, "/"+location);
     }
 
     /**
