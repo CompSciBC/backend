@@ -39,6 +39,8 @@ public class ReservationController extends Controller<Reservation> {
      * Gets all reservations with the given id
      *
      * @param id A reservation id
+     * @param primary Set to true to filter reservations for only primary entries,
+     *                or false/undefined to perform no filtering
      * @return A response entity containing a list of reservations
      */
     @GetMapping("/{id}")
