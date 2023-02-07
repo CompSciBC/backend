@@ -1,6 +1,8 @@
 package bmg.controller;
 
-@Controller
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
 public class GuidebookController {
 
 }
