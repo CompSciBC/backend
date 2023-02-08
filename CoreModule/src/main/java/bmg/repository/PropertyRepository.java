@@ -52,65 +52,96 @@ public class PropertyRepository {
     }
 
     /**
-     * Saves the given property
+     * Saves the given list of properties. If any property fails to save,
+     * the transaction is cancelled and no properties are saved.
      *
-     * @param property A property
+     * @param properties A list of properties (max of 33 items)
+     * @throws IllegalArgumentException If properties contains more than 33 items
      */
-    public void saveOne(Property property) {
-        Property uniqueKey = uniqueKey(property);
+    public void saveAll(List<Property> properties) throws IllegalArgumentException {
+        // transactionWrite() uses transactionWriteItems().
+        // transactionWriteItems() accepts a maximum of 100 operations per transaction.
+        // Each property here may consume at most 3 operations each, depending on
+        // the situation. Therefore, a max limit of 100/3 = 33 items per method call.
+        // https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/dynamodbv2/datamodeling/DynamoDBMapper.html#transactionWrite-com.amazonaws.services.dynamodbv2.datamodeling.TransactionWriteRequest-com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig-
+        if (properties.size() > 33)
+            throw new IllegalArgumentException("Max limit of 33 items exceeded.");
 
+        TransactionWriteRequest writeRequest = new TransactionWriteRequest();
+
+        // constraint that id cannot be duplicate
         DynamoDBTransactionWriteExpression ifKeyDoesNotExist =
                 new DynamoDBTransactionWriteExpression()
                         .withConditionExpression("attribute_not_exists(id)");
 
-        try {
-            MAPPER.transactionWrite(
-                    new TransactionWriteRequest()
-                            .addPut(uniqueKey, ifKeyDoesNotExist)
-                            .addPut(property));
+        for (Property property : properties) {
 
-        } catch (TransactionCanceledException e) {
-            handleDuplicateProperty(uniqueKey.getId());
-        }
-    }
+            Property existing = property.getId() == null
+                    ? null
+                    : MAPPER.load(property);
 
-    /**
-     * Updates the identified property according to the given updated property
-     *
-     * @param id A property id
-     * @param updatedProperty A property
-     */
-    public void updateOne(String id, Property updatedProperty) {
-        Property oldKey = uniqueKey(findOne(id));
-        Property newKey = uniqueKey(updatedProperty);
+            Property newKey = uniqueKey(property);
 
-        if (oldKey.getId().equals(newKey.getId())) {
-            MAPPER.save(updatedProperty);
+            if (existing == null) {
+                // this is a brand-new property; put property and new unique key entry
+                writeRequest
+                        .addPut(newKey, ifKeyDoesNotExist)
+                        .addPut(property);
+            } else {
+                // property already exists in the database; in order to preserve any
+                // additional fields that may not exist outside this database, use
+                // update rather than put
+                writeRequest.addUpdate(property);
 
-        } else {
-            try {
-                MAPPER.transactionWrite(
-                        new TransactionWriteRequest()
-                                .addDelete(oldKey)
-                                .addPut(newKey)
-                                .addPut(updatedProperty));
+                // evaluate if existing unique key entry needs to be replaced
+                Property oldKey = uniqueKey(existing);
 
-            } catch (TransactionCanceledException e) {
-                handleDuplicateProperty(newKey.getId());
+                if (!oldKey.equals(newKey)) {
+                    // unique key entry has changed; replace old entry with new
+                    writeRequest
+                            .addDelete(oldKey)
+                            .addPut(newKey);
+
+                } // else -> unique key entry remains the same; no action needed
             }
         }
+        try {
+            MAPPER.transactionWrite(writeRequest);
+
+        } catch (TransactionCanceledException e) {
+            String error;
+
+            if (properties.size() == 1) {
+                Property property = properties.get(0);
+                error = String.format("Unique constraint violation: hostId=%s, name=%s is not unique.",
+                        property.getHostId(),
+                        property.getName());
+            } else {
+                error = "Unique constraint violation: hostId + name is not unique for at least one entry.";
+            }
+            throw new TransactionCanceledException(error);
+        }
     }
 
     /**
-     * Deletes the given property
+     * Deletes the properties with the given ids
      *
-     * @param property A property
+     * @param ids A list of property ids (max of 25 items)
+     * @throws IllegalArgumentException If ids contains more than 25 items
      */
-    public void deleteOne(Property property) {
-        MAPPER.transactionWrite(
-                new TransactionWriteRequest()
-                        .addDelete(uniqueKey(property))
-                        .addDelete(property));
+    public void deleteAll(List<String> ids) throws IllegalArgumentException {
+        // batchDelete() calls batchWriteItems().
+        // batchWriteItems() accepts a maximum of 25 items per request.
+        // A common workaround is to call batchDelete in a loop until all items
+        // are processed, but I have decided to just enforce a limit here
+        // https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/dynamodbv2/datamodeling/AbstractDynamoDBMapper.html#batchDelete-java.lang.Iterable-
+        if (ids.size() > 25)
+            throw new IllegalArgumentException("Max limit of 25 items exceeded.");
+
+        List<Property> properties = ids.stream().map(this::findOne).toList();
+        List<Property> uniqueKeys = properties.stream().map(this::uniqueKey).toList();
+        MAPPER.batchDelete(properties);
+        MAPPER.batchDelete(uniqueKeys);
     }
 
     /**
@@ -126,14 +157,5 @@ public class PropertyRepository {
         Property uniqueKey = new Property();
         uniqueKey.setId(String.format("hostId${%s}name${%s}", property.getHostId(), property.getName()));
         return uniqueKey;
-    }
-
-    /**
-     * Throws an exception indicating a duplicate property
-     *
-     * @param uniqueKey The unique key of the duplicate property
-     */
-    private void handleDuplicateProperty(String uniqueKey) {
-        throw new TransactionCanceledException("Duplicate property for "+uniqueKey+".");
     }
 }
