@@ -2,7 +2,6 @@ package bmg.model;
 
 import lombok.*;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
-
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,16 +13,16 @@ import com.amazonaws.services.dynamodbv2.datamodeling.*;
  */
 @DynamoDBTable(tableName = "Chat")
 @Data
-public class Message {
+public class MessageDBRecord {
 
     //Partition Key
-    @DynamoDBHashKey (attributeName = "reservationID")
+    @DynamoDBHashKey (attributeName = "ReservationID")
     private String reservationId;
     //Sort Key
     @DynamoDBRangeKey (attributeName = "timestamp")
-    private String timestamp;
+    private Long timestamp;
     //global key
-    @DynamoDBIndexHashKey (attributeName = "chatId", globalSecondaryIndexName = "chatId-index")
+    @DynamoDBIndexHashKey (attributeName = "chatID", globalSecondaryIndexName = "chatID-timestamp-index")
     private String chatId;
     //Attributes
     @DynamoDBAttribute (attributeName = "senderName")
@@ -31,5 +30,5 @@ public class Message {
     @DynamoDBAttribute (attributeName = "message")
     private String message;
 
-
 }
+

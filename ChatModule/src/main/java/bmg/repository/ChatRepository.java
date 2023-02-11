@@ -1,11 +1,10 @@
 package bmg.repository;
 
 
-import bmg.model.Message;
+import bmg.model.MessageDBRecord;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,55 +18,53 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public class PrivateChatRepository {
+public class ChatRepository {
     private final DynamoDBMapper dynamoDBMapper;
 
-    PrivateChatRepository (DynamoDBMapper dynamoDBMapper){
+    ChatRepository(DynamoDBMapper dynamoDBMapper){
         this.dynamoDBMapper = dynamoDBMapper;
 
     }
 
     /**
-     * Saves the given message into PrivateChat table
+     * Saves the given messageDBRecord into PrivateChat table
      */
-    public void saveMessage(Message message) {
+    public void saveMessage(MessageDBRecord messageDBRecord) {
 
-       dynamoDBMapper.save(message);
+       dynamoDBMapper.save(messageDBRecord);
     }
 
     /**
      * Retrieve message for the given reservationID
      */
-    public List<Message> retrieveMessageForGivenReservationId(String reservationId) {
+    public List<MessageDBRecord> retrieveMessageForGivenReservationId(String reservationId) {
         Map<String, AttributeValue> values = new HashMap<>();
         values.put(":pk", new AttributeValue().withS(reservationId));
-
-
         return dynamoDBMapper.query(
-                Message.class,
-                new DynamoDBQueryExpression <Message>()
-                        .withKeyConditionExpression("reservationID = :pk")
+                MessageDBRecord.class,
+                new DynamoDBQueryExpression <MessageDBRecord>()
+                        .withKeyConditionExpression("ReservationID = :pk")
                         .withExpressionAttributeValues(values)
+                        .withScanIndexForward(true)
                         .withConsistentRead(false) );
     }
 
 
 
-    public List<Message> retrieveMessageForGivenChatId (String reservationId, String chatId){
+    public List<MessageDBRecord> retrieveMessageForGivenChatId (String chatId){
         Map<String, AttributeValue> values = new HashMap<>();
-        values.put(":pk1", new AttributeValue().withS(reservationId));
-        values.put(":pk2", new AttributeValue().withS(chatId));
+        values.put(":pk", new AttributeValue().withS(chatId));
+
 
 
         return dynamoDBMapper.query(
-                Message.class,
-                new DynamoDBQueryExpression <Message>()
-                        .withKeyConditionExpression("reservationID = :pk1")
-                        .withKeyConditionExpression("chatId = :pk2")
+                MessageDBRecord.class,
+                new DynamoDBQueryExpression <MessageDBRecord>()
+                        .withIndexName("chatID-timestamp-index")
+                        .withKeyConditionExpression("chatID = :pk")
                         .withExpressionAttributeValues(values)
+                        .withScanIndexForward(true)
                         .withConsistentRead(false) );
-
-        return null;
     }
 
 }

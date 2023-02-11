@@ -1,36 +1,120 @@
 package bmg.service;
 
 import bmg.model.Message;
-import bmg.repository.PrivateChatRepository;
+import bmg.model.MessageDBRecord;
+import bmg.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
-/** provides service for PrivateChats objects*/
+/** provides service for Chats objects*/
 
 @Service
 @RequiredArgsConstructor
-public class PrivateChatService {
+public class ChatService {
+    private final ChatRepository chatRepository;
 
-    private final PrivateChatRepository chatRepository;
-
-    /**save a private chat message into database*/
-
-    public void savePrivateChatMessage (Message message){
-        chatRepository.saveMessage(message);
+    public void saveChatMessage (Message message) {
+        chatRepository.saveMessage(convertMessageToMessageDBRecord(message));
     }
 
-    /**load a list of private chat messages by a given reservationId*/
-    public List<Message> loadPrivateChatMessageByGivenReservationId (String reservationId){
+    /**load chat by a given reservationId*/
+    public Map<String, List<Message>> loadChatMessagesForHost(String reservationId){
         if (reservationId == null){
             throw new NoSuchElementException("There is no chat room if reservationId is unknown");
         }
-        return chatRepository.retrieveMessageForGivenReservationId(reservationId);
+        List<MessageDBRecord> allChat = chatRepository.retrieveMessageForGivenReservationId(reservationId);
+        HashMap <String, List<Message>> chatMap = new HashMap<>();
+
+        // Always create a message array for the group chat.
+        chatMap.put(reservationId, new ArrayList<Message>());
+
+        // TODO: Create a message array for each registered guest.
+
+        for(int i = 0; i < allChat.size(); i++){
+            String key = allChat.get(i).getChatId();
+            Message message = convertMessageDBRecordToMessage(allChat.get(i));
+
+            List<Message> messages = null;
+
+            if (chatMap.containsKey(key)){
+                messages = chatMap.get(key);
+            }
+            else {
+                messages = new ArrayList<Message>();
+                chatMap.put(key, messages);
+            }
+            messages.add(message);
+        }
+        return chatMap;
+    }
+
+    /**load chat by a given reservationId and a chatID*/
+    public Map<String, List<Message>> loadChatMessagesForGuest(String reservationId, String guestId){
+        String groupChatId = reservationId;
+        String hostChatId = reservationId + "_" + guestId;
+        List<MessageDBRecord> groupChat = this.chatRepository.retrieveMessageForGivenChatId(groupChatId);
+        List<MessageDBRecord> hostChat = this.chatRepository.retrieveMessageForGivenChatId(hostChatId);
+        HashMap<String, List<Message>> result = new HashMap<>();
+
+        List<Message> groupResult = new ArrayList<>();
+        for (int i = 0; i < groupChat.size(); i++){
+            Message groupMessage = convertMessageDBRecordToMessage(groupChat.get(i));
+            groupResult.add(groupMessage);
+        }
+        result.put(groupChatId, groupResult);
+
+        List<Message> hostResult = new ArrayList<>();
+        for (int i = 0; i < hostChat.size(); i++){
+            Message hostMessage = convertMessageDBRecordToMessage(hostChat.get(i));
+            hostResult.add(hostMessage);
+        }
+        result.put(hostChatId, hostResult);
+
+        return result;
+    }
+
+    private MessageDBRecord convertMessageToMessageDBRecord (Message message){
+        MessageDBRecord record = new MessageDBRecord();
+
+        String chatId = message.getReservationId();
+        if (message.getReceiverName() != null ) {
+            chatId = chatId + "_" + message.getReceiverName();
+        }
+        record.setChatId(chatId);
+        record.setReservationId(message.getReservationId());
+        record.setSenderName(message.getSenderName());
+        record.setMessage(message.getMessage());
+        record.setTimestamp(message.getTimestamp());
+
+        return record;
+
+        }
+
+    private Message convertMessageDBRecordToMessage (MessageDBRecord record){
+        Message message = new Message();
+        message.setMessage(record.getMessage());
+        message.setTimestamp(record.getTimestamp());
+        message.setSenderName(record.getSenderName());
+        message.setReservationId(record.getReservationId());
+        message.setReceiverName(null);
+
+        if (!record.getReservationId().equals(record.getChatId()) ){
+            String [] arrayToSplit = record.getChatId().split("_");
+            String receiverName = arrayToSplit[1];
+            message.setReceiverName(receiverName);
+        }
+        return message;
+
     }
 
 
 
 
-}
+ }
+
+
+
+
+

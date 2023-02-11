@@ -1,8 +1,8 @@
 package bmg.controller;
 
 
-import bmg.model.Message;
 import bmg.service.ChatService;
+import bmg.model.Message;
 import org.springframework.stereotype.Controller;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -15,41 +15,51 @@ import java.util.*;
 @Controller
 @RestController
 @RequestMapping("/api/chat")
-public class PrivateChatController {
+public class ChatController {
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final List<Message> messageList;
+    private final List<Message> messages;
     private final ChatService chatService;
 
-    public PrivateChatController(SimpMessagingTemplate simpMessagingTemplate, ChatService chatService) {
+    public ChatController(SimpMessagingTemplate simpMessagingTemplate, ChatService chatService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.chatService = chatService;
-        this.messageList = new ArrayList<Message>();
+        this.messages = new ArrayList<Message>();
     }
 
     @MessageMapping("/private-message")
     public Message receivePrivateMessage (@Payload Message message){
         Calendar calendar = Calendar.getInstance();
         Date currentTime = calendar.getTime();
-        message.setTimestamp(currentTime.toString());
-        this.messageList.add(message);
+        message.setTimestamp(currentTime.getTime());
+        this.messages.add(message);
         this.chatService.saveChatMessage(message);
-        simpMessagingTemplate.convertAndSendToUser(message.getChatId()+ message.getReservationId(), "/private", message);
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), "/private", message);
         return message;
     }
-    @GetMapping("/private-message/host/{reservationId}")
+
+    @MessageMapping("/group-message")
+    public Message receiveGroupMessage (@Payload Message message){
+        Calendar calendar = Calendar.getInstance();
+        Date currentTime = calendar.getTime();
+        message.setTimestamp(currentTime.getTime());
+        this.messages.add(message);
+        this.chatService.saveChatMessage(message);
+        simpMessagingTemplate.convertAndSend("/group/" + message.getReservationId(), message);
+        return message;
+    }
+    @GetMapping("/load/host/{reservationId}")
     public Map<String, List<Message>> retrieveMessagesHost (
-            @PathVariable(name = "reservationId")String reservationID
+            @PathVariable(name = "reservationId") String reservationID
             ){
-        return chatService.loadChatMessageByGivenReservationId(reservationID);
+        return chatService.loadChatMessagesForHost(reservationID);
 
     }
-
-    @GetMapping("/private-message/guest/{reservationId}/{guestId}")
+    @GetMapping("/load/guest/{reservationId}/{guestId}")
     public Map<String, List<Message>> retrieveMessagesGuest (
-            @PathVariable(name = "reservationId")String reservationID,
+            @PathVariable(name = "reservationId")String reservationId,
             @PathVariable(name = "guestId") String guestId
     ){
-        return chatService.loadChatsMessageByGivenReservationIdAndGuestId(reservationID, guestId);
+       return chatService.loadChatMessagesForGuest(reservationId, guestId);
 
     }
 
