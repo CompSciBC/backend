@@ -2,7 +2,6 @@ package bmg.repository;
 
 
 import bmg.model.Message;
-import bmg.model.Status;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 
 
@@ -13,7 +12,6 @@ import java.util.Map;
 
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import org.springframework.stereotype.Repository;
 
@@ -50,16 +48,26 @@ public class PrivateChatRepository {
                 new DynamoDBQueryExpression <Message>()
                         .withKeyConditionExpression("reservationID = :pk")
                         .withExpressionAttributeValues(values)
-                        .withConsistentRead(false)
-        );
+                        .withConsistentRead(false) );
     }
 
-    public List<Message> loadMessage (String reservationId){
-        List<Message> loadMessage = new ArrayList<>();
-        Message message = new Message();
-        message.setReservationId(reservationId);
-        loadMessage.add(dynamoDBMapper.load(message));
-        return loadMessage;
+
+
+    public List<Message> retrieveMessageForGivenChatId (String reservationId, String chatId){
+        Map<String, AttributeValue> values = new HashMap<>();
+        values.put(":pk1", new AttributeValue().withS(reservationId));
+        values.put(":pk2", new AttributeValue().withS(chatId));
+
+
+        return dynamoDBMapper.query(
+                Message.class,
+                new DynamoDBQueryExpression <Message>()
+                        .withKeyConditionExpression("reservationID = :pk1")
+                        .withKeyConditionExpression("chatId = :pk2")
+                        .withExpressionAttributeValues(values)
+                        .withConsistentRead(false) );
+
+        return null;
     }
 
 }
