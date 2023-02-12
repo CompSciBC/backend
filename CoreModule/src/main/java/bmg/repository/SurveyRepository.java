@@ -32,10 +32,10 @@ public class SurveyRepository {
     }
 
     /**
-     * Finds a survey by guestId and resId
+     * Finds a survey by resId
      */
 
-     public List<Survey> findSurveyByGuestAndReservation(String guestId, String resId) {
+     public List<Survey> findSurveyByReservation(String resId) {
         Map<String, AttributeValue> values = new HashMap<>();
         values.put(":r_id", new AttributeValue().withS(resId));
         return MAPPER.query(

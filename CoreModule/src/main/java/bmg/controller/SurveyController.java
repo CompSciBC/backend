@@ -28,12 +28,12 @@ public class SurveyController extends Controller<Object> {
 
     }
 
-    @GetMapping("/{res_id}/{guest_id}/find-survey")
-    public Object saveSurvey(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId) {
+    @GetMapping("/{res_id}/find-survey")
+    public Object saveSurvey(@PathVariable(name = "res_id") String resId) {
         // ResponseEntity test = new ResponseEntity<>(null);
         // return surveyService.saveSurvey(resId, guestId, response);
         // return responseCodeOk(List.of("Survey saved successfully."));
-        return surveyService.findSurveyByReservation(resId, guestId);
+        return surveyService.findSurveyByReservation(resId);
 
     }
 }
