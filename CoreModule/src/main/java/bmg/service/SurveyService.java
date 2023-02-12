@@ -8,6 +8,7 @@ import bmg.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +40,16 @@ public class SurveyService {
         } catch(Exception e) {
             return e.getMessage();
         }
+    }
 
-        
+    public String findSurveyByReservation(String resId, String guestId) {
+        try {
+            // Example Reservation Object queried back: Survey(id=hndo-test-res-1, guestId=hndo_guest1, hostId=hndo_host1, reservationId=hndo-test-res-1, propertyId=hndo-prop-1, submissionTime=2023-02-11T21:43:25, surveyResponse=some_response)
+            List<Survey> surveyList = SURVEY_REPO.findSurveyByGuestAndReservation(guestId, resId);
+            return surveyList.get(0).toString();
+        } catch(Exception e) {
+            return e.getMessage();
+        }
     }
     
 }

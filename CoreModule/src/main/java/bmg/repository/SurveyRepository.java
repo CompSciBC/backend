@@ -5,6 +5,7 @@ import bmg.model.Survey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -29,4 +30,20 @@ public class SurveyRepository {
     public void saveOne(Survey survey) {
         MAPPER.save(survey);
     }
+
+    /**
+     * Finds a survey by guestId and resId
+     */
+
+     public List<Survey> findSurveyByGuestAndReservation(String guestId, String resId) {
+        Map<String, AttributeValue> values = new HashMap<>();
+        values.put(":r_id", new AttributeValue().withS(resId));
+        return MAPPER.query(
+                Survey.class,
+                new DynamoDBQueryExpression<Survey>()
+                        .withIndexName("reservationId-index")
+                        .withKeyConditionExpression("reservationId = :r_id")
+                        .withExpressionAttributeValues(values)
+                        .withConsistentRead(false));
+     }
 }
