@@ -5,7 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import lombok.Data;
 
-@DynamoDBTable(tableName = "bmg_weather_cache")
+@DynamoDBTable(tableName = "bmg_forecast")
 @Data
 public class Forecast {
     @DynamoDBHashKey(attributeName = "office")

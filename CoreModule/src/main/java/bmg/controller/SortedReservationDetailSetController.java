@@ -1,7 +1,7 @@
 package bmg.controller;
 
 import bmg.model.Reservation;
-import bmg.model.SortedReservationDetailSet;
+import bmg.dto.SortedReservationDetailSet;
 import bmg.service.ReservationDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

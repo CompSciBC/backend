@@ -44,12 +44,12 @@ public class PropertyService {
     }
 
     /**
-     * Saves the given property
+     * Saves the given list of properties
      *
-     * @param property A property
+     * @param properties A list of properties (max of 33 items)
      */
-    public void saveOne(Property property) {
-        REPO.saveOne(property);
+    public void saveAll(List<Property> properties) {
+        REPO.saveAll(properties);
     }
 
     /**
@@ -73,15 +73,15 @@ public class PropertyService {
                         "Attribute \"" + attribute + "\" is not applicable or cannot be modified.");
             }
         }
-        REPO.updateOne(id, property);
+        REPO.saveAll(List.of(property));
     }
 
     /**
-     * Deletes the property with the given id
+     * Deletes the properties with the given ids
      *
-     * @param id A property id
+     * @param ids A list of property ids (max of 25 items)
      */
-    public void deleteOne(String id) {
-        REPO.deleteOne(findOne(id));
+    public void deleteAll(List<String> ids) {
+        REPO.deleteAll(ids);
     }
 }

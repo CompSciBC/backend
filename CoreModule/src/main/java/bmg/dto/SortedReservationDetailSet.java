@@ -1,4 +1,4 @@
-package bmg.model;
+package bmg.dto;
 
 import lombok.Builder;
 import lombok.Getter;
