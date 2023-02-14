@@ -53,22 +53,15 @@ public class SurveyService {
         }
     }
 
-    public String findSurveyByReservationAndGuest(String resId, String guestId) {
-        try {
-            // Example Reservation Object queried back: Survey(id=hndo-test-res-1, guestId=hndo_guest1, hostId=hndo_host1, reservationId=hndo-test-res-1, propertyId=hndo-prop-1, submissionTime=2023-02-11T21:43:25, surveyResponse=some_response)
-            List<Survey> surveyList = SURVEY_REPO.findSurveyByReservation(resId);
-            if (surveyList.size() == 0) {
-                throw new Exception("no survey found for given reservation");
+    public Survey findSurveyByReservationAndGuest(String resId, String guestId) {
+        // Example Reservation Object queried back: Survey(id=hndo-test-res-1, guestId=hndo_guest1, hostId=hndo_host1, reservationId=hndo-test-res-1, propertyId=hndo-prop-1, submissionTime=2023-02-11T21:43:25, surveyResponse=some_response)
+        List<Survey> surveyList = SURVEY_REPO.findSurveyByReservation(resId);
+        for (Survey s : surveyList) {
+            if (s.getGuestId().equals(guestId)){
+                return s;
             }
-            for (Survey s : surveyList) {
-                if (s.getGuestId().equals(guestId)){
-                    return s.toString();
-                }
-            }
-            throw new Exception("no survey found for given reservation and guest");
-        } catch(Exception e) {
-            return e.getMessage();
         }
+        throw new NoSuchElementException("no entity found");
     }
     
 }

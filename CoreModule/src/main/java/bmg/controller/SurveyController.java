@@ -1,5 +1,6 @@
 package bmg.controller;
 import bmg.dto.SurveyResponse;
+import bmg.model.Survey;
 import bmg.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,8 @@ public class SurveyController extends Controller<Object> {
     }
 
     @GetMapping("/{res_id}/{guest_id}/find-survey")
-    public Object findSurveyByReservation(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId) {
-        return surveyService.findSurveyByReservationAndGuest(resId, guestId);
+    public Survey findSurveyByReservationAndGuest(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId) {
+        Survey s = surveyService.findSurveyByReservationAndGuest(resId, guestId);
+        return s;
     }
 }
