@@ -23,13 +23,14 @@ public class SurveyService {
      */
     // TODO: change return type back to void
     // TODO: change setId to something actual
-    public String saveSurvey(String resId, String guestId, SurveyResponse surveyResponse) {
+    public String saveSurvey(String resId, String guestId, String surveyResponse) {
         try {
+            // return surveyResponse;
             // Example Reservation Object: Reservation(id=test-res-1, guestId=test-guest-1, hostId=test-host-1, propertyId=test-prop-1, numGuests=2, checkIn=2023-01-01T12:00, checkOut=2099-01-01T12:00, reasonForStay=business, isPrimary=true)
             Reservation res = reservationService.findOne(resId);
             Survey s = new Survey();
             s.setGuestId(guestId);
-            s.setSurveyResponse(surveyResponse.getSurveyResponse());
+            s.setSurveyResponse(surveyResponse);
             s.setReservationId(resId);
             s.setSubmissionTime(LocalDateTime.now());
             s.setHostId(res.getHostId());

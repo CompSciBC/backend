@@ -21,9 +21,9 @@ public class SurveyController extends Controller<Object> {
      */
     // TODO: change response type back to ResponseEntity<Response<Object>>
     @PostMapping("/{res_id}/{guest_id}/save-survey")
-    public Object saveSurvey(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId, @RequestBody SurveyResponse response) {
+    public Object saveSurvey(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId, @RequestBody String guestSurveyResponse) {
         // ResponseEntity test = new ResponseEntity<>(null);
-        return surveyService.saveSurvey(resId, guestId, response);
+        return surveyService.saveSurvey(resId, guestId, guestSurveyResponse);
         // return responseCodeOk(List.of("Survey saved successfully."));
 
     }
