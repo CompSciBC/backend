@@ -39,4 +39,9 @@ public class SurveyController extends Controller<Object> {
         Survey s = surveyService.findSurveyByReservationAndGuest(resId, guestId);
         return s;
     }
+
+    @GetMapping("/{prop_id}/find-all-surveys")
+    public List<Survey> findAllSurveysForProperty(@PathVariable(name = "prop_id") String propId) {
+        return surveyService.findAllSurveysForProperty(propId);
+    }
 }

@@ -46,4 +46,20 @@ public class SurveyRepository {
                         .withExpressionAttributeValues(values)
                         .withConsistentRead(false));
      }
+
+     /**
+     * Finds a survey by resId
+     */
+
+     public List<Survey> findSurveysByProperty(String propId) {
+        Map<String, AttributeValue> values = new HashMap<>();
+        values.put(":p_id", new AttributeValue().withS(propId));
+        return MAPPER.query(
+                Survey.class,
+                new DynamoDBQueryExpression<Survey>()
+                        .withIndexName("propertyId-index")
+                        .withKeyConditionExpression("propertyId = :p_id")
+                        .withExpressionAttributeValues(values)
+                        .withConsistentRead(false));
+     }
 }

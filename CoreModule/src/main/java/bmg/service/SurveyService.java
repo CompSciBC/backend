@@ -63,5 +63,9 @@ public class SurveyService {
         }
         throw new NoSuchElementException("no entity found");
     }
+
+    public List<Survey> findAllSurveysForProperty(String propId){
+        return SURVEY_REPO.findSurveysByProperty(propId);
+    }
     
 }
