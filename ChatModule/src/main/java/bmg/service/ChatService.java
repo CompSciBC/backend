@@ -19,7 +19,7 @@ public class ChatService {
         chatRepository.saveMessage(convertMessageToMessageDBRecord(message));
     }
 
-    /**load chat by a given reservationId*/
+    /**load chat by a given reservationId. Host perspective*/
     public Map<String, List<Message>> loadChatMessagesForHost(String reservationId){
         if (reservationId == null){
             throw new NoSuchElementException("There is no chat room if reservationId is unknown");
@@ -77,19 +77,13 @@ public class ChatService {
 
     private MessageDBRecord convertMessageToMessageDBRecord (Message message){
         MessageDBRecord record = new MessageDBRecord();
-
-        String chatId = message.getReservationId();
-        if (message.getReceiverName() != null ) {
-            chatId = chatId + "_" + message.getReceiverName();
-        }
-        record.setChatId(chatId);
+        record.setChatId(message.getChatId());
         record.setReservationId(message.getReservationId());
         record.setSenderName(message.getSenderName());
         record.setMessage(message.getMessage());
         record.setTimestamp(message.getTimestamp());
 
         return record;
-
         }
 
     private Message convertMessageDBRecordToMessage (MessageDBRecord record){
@@ -99,6 +93,7 @@ public class ChatService {
         message.setSenderName(record.getSenderName());
         message.setReservationId(record.getReservationId());
         message.setReceiverName(null);
+        message.setChatId(record.getChatId());
 
         if (!record.getReservationId().equals(record.getChatId()) ){
             String [] arrayToSplit = record.getChatId().split("_");

@@ -33,7 +33,9 @@ public class ChatController {
         message.setTimestamp(currentTime.getTime());
         this.messages.add(message);
         this.chatService.saveChatMessage(message);
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), "/private", message);
+
+        String destination = "/private/" + message.getReservationId();
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destination, message);
         return message;
     }
 

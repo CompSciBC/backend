@@ -50,11 +50,12 @@ public class ChatRepository {
     }
 
 
-
+    /**
+     * Retrieve message for the given chatId
+     */
     public List<MessageDBRecord> retrieveMessageForGivenChatId (String chatId){
         Map<String, AttributeValue> values = new HashMap<>();
         values.put(":pk", new AttributeValue().withS(chatId));
-
 
 
         return dynamoDBMapper.query(
