@@ -26,6 +26,7 @@ public class RestaurantServiceYelpFusion extends RestaurantService {
                 "term",
                 "price",
                 "open_now",
+                "limit",
                 "businesses",
                 new RestaurantDeserializerYelpFusion()
         );

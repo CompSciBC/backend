@@ -33,8 +33,8 @@ public class RestaurantController {
      * Gets a list of restaurants matching the given parameters
      *
      * @param source Determines the source of the list (Yelp or Google)
-     * @param address1 An address line 1 to search
-     * @param address2 An address line 2 to search
+     * @param line1 An address line 1 to search
+     * @param line2 An address line 2 to search
      * @param city A city to search
      * @param stateProvince A state or province to search
      * @param postalCode A postal code to search
@@ -43,13 +43,14 @@ public class RestaurantController {
      * @param keywords A list of keywords to search
      * @param maxPrice The maximum price level
      * @param openNow True if the restaurant is open at the time of the search
+     * @param numResults The maximum number of results to return
      * @return A list of restaurants matching the given parameters
      */
     @GetMapping(value = {"", "/{source}"})
     public ResponseEntity<Response2<List<Restaurant>>> getAll(
             @PathVariable(required = false) String source,
-            @RequestParam(required = false) String address1,
-            @RequestParam(required = false) String address2,
+            @RequestParam(required = false) String line1,
+            @RequestParam(required = false) String line2,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String stateProvince,
             @RequestParam(required = false) String postalCode,
@@ -57,10 +58,11 @@ public class RestaurantController {
             @RequestParam(required = false) Integer radius,
             @RequestParam(required = false) String[] keywords,
             @RequestParam(required = false) Integer maxPrice,
-            @RequestParam(required = false) Boolean openNow
+            @RequestParam(required = false) Boolean openNow,
+            @RequestParam(required = false) Integer numResults
     ) {
 
-        Address address = new Address(address1, address2, city, stateProvince, postalCode, country);
+        Address address = new Address(line1, line2, city, stateProvince, postalCode, country);
         verifyAddressNotNull(address);
 
         RestaurantFilters filters =
@@ -71,6 +73,7 @@ public class RestaurantController {
                         .keywords(keywords)
                         .maxPrice(maxPrice)
                         .openNow(openNow)
+                        .numResults(numResults)
                         .build();
 
         List<Restaurant> data;
