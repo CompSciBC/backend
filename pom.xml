@@ -9,9 +9,7 @@
 		<module>LocationModule</module>
 		<module>RestaurantModule</module>
 		<module>WeatherModule</module>
-		<module>DynamoDBConnectorModule</module>
         <module>ChatModule</module>
-        <module>GuidebookModule</module>
 		<module>AWSConnectorModule</module>
 		<module>CoreModule</module>
     </modules>
