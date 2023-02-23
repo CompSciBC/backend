@@ -19,12 +19,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-region: us-west-2
+
       - name: import secrets
         run: |
-          echo "aws.access.key=${{ secrets.AWS_KEY_ID }}" >> secrets.properties
-          echo "aws.access.secret-key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> secrets.properties
-          echo "properties_content=${{ secrets.SECRET_PROPERTIES }}" >> secrets.properties
+          echo "${{ secrets.SECRET_PROPERTIES }}" >> secrets.properties
           cat secrets.properties
+      
+      - name: Upload artifacts to S3
+        run: |
+          aws s3 cp secrets.properties s3://test-bucket-github-action-demo
 
 
 
