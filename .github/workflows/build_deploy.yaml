@@ -5,7 +5,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - gh-actions
+      - main
+      - pipeline-*
   
 jobs:
   deploy:
