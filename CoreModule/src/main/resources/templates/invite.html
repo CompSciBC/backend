@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:remove="all">BMG Invitation</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+<!--
+    apparently css has little support in emails; need to use inline css and tables
+    https://stackoverflow.com/questions/33102885/css-styles-doesnt-applied-to-email-template-with-thymeleaf
+    https://myemma.com/blog/css-in-html-emails-what-you-need-to-know-to-get-started/
+-->
+        <main>
+            <p>
+                Hi <span th:text="${invitee}">[INVITEE]</span>,
+            </p>
+            <p>
+                You've been invited to join BeMyGuest by <span th:text="${invitor}">[INVITOR]</span>.
+                Your reservation for <span th:text="${propertyName}">[PROPERTY_NAME]</span> begins on
+                <span th:text="${checkIn}">[CHECK_IN]</span>. Use the link below to navigate to the
+                BMG website where you can learn more about your vacation rental and connect with your
+                host.
+            </p>
+            <h4>Message from <span th:text="${invitor}">[INVITOR]</span>:</h4>
+            <p th:text="${optionalMessage}">[OPTIONAL_MESSAGE]</p>
+            <a th:href="${addReservationLink}">[LINK]</a>
+            <p>
+                Best regards,<br />
+                The BeMyGuest Team
+            </p>
+        </main>
+    </body>
+</html>

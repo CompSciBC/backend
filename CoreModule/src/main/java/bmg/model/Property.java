@@ -6,7 +6,7 @@ import lombok.Data;
 /**
  * Represents a real estate property owned and/or operated by a host for rental to a guest
  */
-@DynamoDBTable(tableName = "property")
+@DynamoDBTable(tableName = "bmg_property")
 @Data
 public class Property {
     public static final String HOST_ID_NAME_INDEX = "hostId-name-index";

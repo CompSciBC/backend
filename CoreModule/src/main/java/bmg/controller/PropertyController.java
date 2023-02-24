@@ -44,15 +44,20 @@ public class PropertyController extends Controller<Property> {
     }
 
     /**
-     * Creates a new property
+     * Saves the given list of properties
      *
-     * @param property A property
-     * @return A response entity containing a property
+     * @param properties A list of properties (max of 33 items)
+     * @return A response entity containing a list of properties
      */
     @PostMapping("")
-    public ResponseEntity<Response<Property>> createOne(@RequestBody Property property) {
-        SVC.saveOne(property);
-        return responseCodeCreated(List.of(property), "/"+property.getId());
+    public ResponseEntity<Response<Property>> saveAll(@RequestBody List<Property> properties) {
+        SVC.saveAll(properties);
+
+        String location = properties.size() == 1
+                ? properties.get(0).getId()
+                : "...";
+
+        return responseCodeCreated(properties, "/"+location);
     }
 
     /**
@@ -78,7 +83,19 @@ public class PropertyController extends Controller<Property> {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Response<Property>> deleteOne(@PathVariable(name = "id") String id) {
-        SVC.deleteOne(id);
+        SVC.deleteAll(List.of(id));
+        return responseCodeNoContent();
+    }
+
+    /**
+     * Deletes the properties with the given ids
+     *
+     * @param ids A list of property ids (max of 25 items)
+     * @return A response entity confirming the deletion
+     */
+    @DeleteMapping("")
+    public ResponseEntity<Response<Property>> deleteAll(@RequestBody List<String> ids) {
+        SVC.deleteAll(ids);
         return responseCodeNoContent();
     }
 }

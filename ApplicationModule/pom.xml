@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>bmg</groupId>
-            <artifactId>DynamoDBConnectorModule</artifactId>
+            <artifactId>AWSConnectorModule</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

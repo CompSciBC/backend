@@ -9,8 +9,8 @@
 		<module>LocationModule</module>
 		<module>RestaurantModule</module>
 		<module>WeatherModule</module>
-		<module>DynamoDBConnectorModule</module>
-        <module>ChatModule</module>
+		<module>ChatModule</module>
+		<module>AWSConnectorModule</module>
 		<module>CoreModule</module>
 	</modules>
 	<parent>
@@ -60,7 +60,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
