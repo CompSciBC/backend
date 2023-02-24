@@ -42,7 +42,7 @@ jobs:
 
       - name: Create Docker image
         run: |
-          docker build -t bmg .
+          docker build -t bmg-backend .
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -54,9 +54,8 @@ jobs:
       - name: Push image to ECR
         run: |
           aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 763752984178.dkr.ecr.us-west-2.amazonaws.com
-          docker tag bmg:latest 763752984178.dkr.ecr.us-west-2.amazonaws.com
-          docker push 763752984178.dkr.ecr.us-west-2.amazonaws.com/bmg-backend
-          docker rmi bmg:latest
+          docker tag bmg-backend:latest 763752984178.dkr.ecr.us-west-2.amazonaws.com/bmg-backend:latest
+          docker push 763752984178.dkr.ecr.us-west-2.amazonaws.com/bmg-backend:latest
                     
       # - name: Create Docker image
       #   run: |
