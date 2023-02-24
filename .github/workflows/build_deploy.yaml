@@ -19,6 +19,24 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: import secrets
+        run: |
+          echo "${{ secrets.SECRET_PROPERTIES }}" >> secrets.properties
+          cat secrets.properties
+          mv secrets.properties ./ApplicationModule/src/main/resources
+
+      - name: run tests
+        run: |
+          mvn clean test
+
+      - name: generate jars
+        run: |
+          mvn clean package
+
+      - name: Create Docker image
+        run: |
+          docker build -t bmg .
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -26,33 +44,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws-region: us-west-2
 
-      - name: import secrets
+      - name: Push image to ECR
         run: |
-          echo "${{ secrets.SECRET_PROPERTIES }}" >> secrets.properties
-          cat secrets.properties
-      
-      - name: Upload artifacts to S3
-        run: |
-          aws s3 cp secrets.properties s3://test-bucket-github-action-demo
-
-
-
-      # - name: run tests
-      #   run: |
-      #     mvn clean test
-
-      # - name: generate jars
-      #   run: |
-      #     mvn clean package
-          
-      # - name: create zip folder
-      #   run: |
-      #     ls
-      #     mkdir dst
-      #     find . -name \*.jar -exec cp {} dst/ \;
-      #     zip -r dist.zip dst
-      #     ls
-          
+          aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 763752984178.dkr.ecr.us-west-2.amazonaws.com
+          docker tag bmg:latest 763752984178.dkr.ecr.us-west-2.amazonaws.com
+          docker push 763752984178.dkr.ecr.us-west-2.amazonaws.com/bmg-backend
+          docker rmi bmg:latest
+                    
       # - name: Create Docker image
       #   run: |
       #     docker build -t bmg .
@@ -70,3 +68,5 @@ jobs:
       #     docker tag bmg:latest 763752984178.dkr.ecr.us-east-1.amazonaws.com/bmg-backend
       #     docker push 763752984178.dkr.ecr.us-east-1.amazonaws.com/bmg-backend
       #     docker rmi bmg:latest
+
+ 
