@@ -32,6 +32,13 @@ jobs:
       - name: generate jars
         run: |
           mvn clean package
+      
+      - name: create dist folder
+        run: |
+          ls
+          mkdir dst
+          find . -name \*.jar -exec cp {} dst/ \;
+          ls
 
       - name: Create Docker image
         run: |
