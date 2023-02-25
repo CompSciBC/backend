@@ -56,23 +56,4 @@ jobs:
           aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 763752984178.dkr.ecr.us-west-2.amazonaws.com
           docker tag bmg-backend:latest 763752984178.dkr.ecr.us-west-2.amazonaws.com/bmg-backend:latest
           docker push 763752984178.dkr.ecr.us-west-2.amazonaws.com/bmg-backend:latest
-                    
-      # - name: Create Docker image
-      #   run: |
-      #     docker build -t bmg .
-
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
-      #     aws-region: us-east-1
-
-      # - name: Push image to ECR
-      #   run: |
-      #     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 763752984178.dkr.ecr.us-east-1.amazonaws.com/
-      #     docker tag bmg:latest 763752984178.dkr.ecr.us-east-1.amazonaws.com/bmg-backend
-      #     docker push 763752984178.dkr.ecr.us-east-1.amazonaws.com/bmg-backend
-      #     docker rmi bmg:latest
-
  

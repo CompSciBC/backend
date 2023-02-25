@@ -13,6 +13,7 @@ import java.util.Map;
  * Handles requests for {@link Reservation} objects
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
 public class ReservationController extends Controller<Reservation> {

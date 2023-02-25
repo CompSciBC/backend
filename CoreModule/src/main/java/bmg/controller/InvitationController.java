@@ -15,6 +15,7 @@ import java.util.List;
  * Handles requests related to {@link Invitation}s and QR codes
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/api/invites")
 @RequiredArgsConstructor
 public class InvitationController extends Controller<Object> {
