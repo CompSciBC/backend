@@ -56,4 +56,6 @@ jobs:
           aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 763752984178.dkr.ecr.us-west-2.amazonaws.com
           docker tag bmg-backend:latest 763752984178.dkr.ecr.us-west-2.amazonaws.com/bmg-backend:latest
           docker push 763752984178.dkr.ecr.us-west-2.amazonaws.com/bmg-backend:latest
+          aws ecs update-service --cluster bmgbackend --service bmgBackendFargateService --force-new-deployment
+
  
