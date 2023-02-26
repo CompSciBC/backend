@@ -27,6 +27,7 @@ public class RestaurantServiceGooglePlaces extends RestaurantService {
                 "keyword",
                 "maxprice",
                 "opennow",
+                null,
                 "results",
                 new RestaurantDeserializerGooglePlaces()
         );

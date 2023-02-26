@@ -3,6 +3,7 @@ package bmg.controller;
 import bmg.dto.Invitation;
 import bmg.service.InvitationService;
 import bmg.service.QRCodeService;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
@@ -45,7 +46,7 @@ public class InvitationController extends Controller<Object> {
             I_SVC.sendInvites(id, invitation);
             return responseCodeOk(List.of("Invitation sent successfully."));
 
-        } catch (MailSendException e) {
+        } catch (MailSendException | MessagingException e) {
             String error = e.getMessage();
             error = error != null ? error : "Failed to send invitation.";
             return responseCodeBadRequest(error);
