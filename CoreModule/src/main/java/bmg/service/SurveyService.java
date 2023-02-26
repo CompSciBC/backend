@@ -67,5 +67,9 @@ public class SurveyService {
     public List<Survey> findAllSurveysForProperty(String propId){
         return SURVEY_REPO.findSurveysByProperty(propId);
     }
+
+    public List<Survey> findAllSurveysForHost(String hostId){
+        return SURVEY_REPO.findSurveysByHost(hostId);
+    }
     
 }

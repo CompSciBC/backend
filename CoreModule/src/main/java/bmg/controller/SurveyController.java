@@ -44,4 +44,9 @@ public class SurveyController extends Controller<Object> {
     public List<Survey> findAllSurveysForProperty(@PathVariable(name = "prop_id") String propId) {
         return surveyService.findAllSurveysForProperty(propId);
     }
+
+    @GetMapping("/{host_id}/find-surveys")
+    public List<Survey> findAllSurveysForHost(@PathVariable(name = "host_id") String hostId) {
+        return surveyService.findAllSurveysForHost(hostId);
+    }
 }

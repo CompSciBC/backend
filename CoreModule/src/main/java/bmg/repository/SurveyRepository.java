@@ -62,4 +62,16 @@ public class SurveyRepository {
                         .withExpressionAttributeValues(values)
                         .withConsistentRead(false));
      }
+
+     public List<Survey> findSurveysByHost(String hostId) {
+        Map<String, AttributeValue> values = new HashMap<>();
+        values.put(":h_id", new AttributeValue().withS(hostId));
+        return MAPPER.query(
+                Survey.class,
+                new DynamoDBQueryExpression<Survey>()
+                        .withIndexName("hostId-index")
+                        .withKeyConditionExpression("hostId = :h_id")
+                        .withExpressionAttributeValues(values)
+                        .withConsistentRead(false));
+     }
 }
