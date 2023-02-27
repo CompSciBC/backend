@@ -13,6 +13,7 @@ import java.util.Map;
  * Handles requests for {@link Property} objects
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/api/properties")
 @RequiredArgsConstructor
 public class PropertyController extends Controller<Property> {
@@ -69,7 +70,7 @@ public class PropertyController extends Controller<Property> {
      */
     @PatchMapping("/{id}")
     public ResponseEntity<Response<Property>> updateOne(@PathVariable(name = "id") String id,
-                                                        @RequestBody Map<String, String> updates) {
+                                                        @RequestBody Map<String, Object> updates) {
         SVC.updateOne(id, updates);
         Property property = SVC.findOne(id);
         return responseCodeOk(List.of(property));
