@@ -9,6 +9,7 @@
 		<module>LocationModule</module>
 		<module>RestaurantModule</module>
 		<module>WeatherModule</module>
+		<module>ChatModule</module>
 		<module>AWSConnectorModule</module>
 		<module>CoreModule</module>
 	</modules>

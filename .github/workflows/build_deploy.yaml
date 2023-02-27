@@ -60,5 +60,4 @@ jobs:
       - name: Update ECS Service
         run: |
           aws ecs update-service --cluster bmgbackend --service bmgBackendFargateService --force-new-deployment
-
  

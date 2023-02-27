@@ -1,5 +1,6 @@
 package bmg.service;
 
+import bmg.dto.Address;
 import bmg.model.Property;
 import bmg.repository.PropertyRepository;
 import lombok.RequiredArgsConstructor;
@@ -58,17 +59,17 @@ public class PropertyService {
      * @param id A property id
      * @param updates A map of attribute/value pairs
      */
-    public void updateOne(String id, Map<String, String> updates) {
+    public void updateOne(String id, Map<String, Object> updates) {
         Property property = findOne(id);
 
-        for (Map.Entry<String, String> update : updates.entrySet()) {
+        for (Map.Entry<String, Object> update : updates.entrySet()) {
             String attribute = update.getKey();
-            String value = update.getValue();
+            Object value = update.getValue();
 
             switch (attribute.toLowerCase()) {
-                case "hostid" -> property.setHostId(value);
-                case "name" -> property.setName(value);
-                case "address" -> property.setAddress(value);
+                case "hostid" -> property.setHostId((String)value);
+                case "name" -> property.setName((String)value);
+                case "address" -> property.setAddress((Address)value);
                 default -> throw new IllegalArgumentException(
                         "Attribute \"" + attribute + "\" is not applicable or cannot be modified.");
             }
