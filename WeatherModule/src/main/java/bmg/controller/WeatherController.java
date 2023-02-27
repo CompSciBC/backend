@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/weather")
 public class WeatherController {
     private final NwsWeatherService nwsWeatherService;

@@ -14,7 +14,6 @@ import java.util.*;
 
 @Controller
 @RestController
-@CrossOrigin
 @RequestMapping("/api/chat")
 public class ChatController {
     private final SimpMessagingTemplate simpMessagingTemplate;
