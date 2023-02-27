@@ -13,6 +13,7 @@ import java.util.Map;
  * Handles requests for {@link Property} objects
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/api/properties")
 @RequiredArgsConstructor
 public class PropertyController extends Controller<Property> {
