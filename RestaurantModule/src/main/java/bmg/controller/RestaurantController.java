@@ -18,6 +18,7 @@ import java.util.List;
  * Handles requests related to {@link Restaurant}s
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/api/restaurants")
 public class RestaurantController {
 
