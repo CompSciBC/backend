@@ -5,10 +5,7 @@ import java.util.concurrent.ExecutionException;
 import bmg.dto.Coordinates;
 import bmg.service.CoordinatesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 
@@ -18,9 +15,9 @@ public class CoordinatesController {
     @Autowired
     private CoordinatesService service;
 
-    @GetMapping(value = "")
+    @GetMapping(value = "/{address}")
     public Coordinates getResult (            
-        @RequestParam(required = false) String address) throws ExecutionException, InterruptedException {
+        @PathVariable(name = "address") String address) throws ExecutionException, InterruptedException {
 
         return service.getCoordinates(address);
 
