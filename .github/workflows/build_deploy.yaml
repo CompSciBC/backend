@@ -25,13 +25,9 @@ jobs:
           cat secrets.properties
           mv secrets.properties ./ApplicationModule/src/main/resources
 
-      - name: run tests
+      - name: run tests & generate jars
         run: |
-          mvn clean test
-
-      - name: generate jars
-        run: |
-          mvn clean package
+          mvn -Pprod clean package
       
       - name: create dist folder
         run: |
