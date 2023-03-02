@@ -31,28 +31,4 @@ public class GuidebookController extends Controller<Guidebook> {
         return SVC.retrieveFromS3(id);
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<PutObjectResult> saveGuidebookByPropertyID(@PathVariable(name = "id") String id, @RequestBody String jsonPayload) {
-//        PutObjectResult guidebookResult = SVC.saveGuidebookJsonInfo(id, jsonPayload);
-//        HttpStatus status = HttpStatus.OK;
-////        return responseEntity(status, status.name(), data, null);
-//        return responseCodeOk(List.of(guidebookResult));
-//    }
-
-//    @GetMapping("/{id}")
-//    public void getGuidebookByPropertyID(@PathVariable(name = "id") String id, @RequestBody List<Property> properties) {
-//        Property property = SVC.retrieveGuidebookJsonInfo(id, ResponseBody JsonObject);
-//        return responseCodeOk(List.of(property));
-  //  }
-
-
-    // write endpoint that does the following:
-            // call respective method in guidebook service that does:
-                        //connect to S3
-                        // retrieve json by propertyID (name of property object)
-                        // return that json in the response endpoint
-    // in frontend
-    // parse text into json obj
-    // pass to Guidebook Loader to display to the page
-
 }

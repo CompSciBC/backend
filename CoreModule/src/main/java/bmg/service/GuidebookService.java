@@ -30,15 +30,6 @@ public class GuidebookService {
 
     private static final String GUIDEBOOK_FOLDER = "guidebookJSON/";
 
-//    public PutObjectResult saveGuidebookJsonInfo(String id, String jsonPayload) {
-//        byte[] jsonBytes = jsonPayload.getBytes();
-//        PutObjectResult guidebookResult = S3.putObject(bucket, GUIDEBOOK_FOLDER+id, new ByteArrayInputStream(jsonBytes), null);
-////        return "Saved JSON to S3";
-////        S3.putObject(bucket, GUIDEBOOK_FOLDER+id, guidebookInfo);
-//        return guidebookResult;
-//    }
-
-
     public String saveToS3(String id, Guidebook gb) {
         try {
             byte[] jsonBytes = new ObjectMapper().writeValueAsBytes(gb);
@@ -56,11 +47,6 @@ public class GuidebookService {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(objectData, Guidebook.class);
     }
-
-//    public void retrieveGuidebookJsonInfo(String id) {
-//        S3.getObject("/", "");
-//        S3.getObject(GetObjectRequest);
-//    }
 
 //    public void saveGuidebookImages(String id, File guidebookInfo) {
 //        S3.putObject(bucket, GUIDEBOOK_FOLDER+id+"/images", guidebookInfo);
