@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/surveys")
 @RequiredArgsConstructor
 public class SurveyController extends Controller<Survey> {

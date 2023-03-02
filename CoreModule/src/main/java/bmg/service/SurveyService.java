@@ -50,9 +50,6 @@ public class SurveyService {
         } else if (index.equals("host")){
             surveys = SURVEY_REPO.findSurveysByIndex(Survey.Index.HOST, id);
         }
-        if (surveys.isEmpty()){
-            throw new NoSuchElementException(String.format("No survey has been submitted for %s with id=%s", index.toString().toLowerCase(), id));
-        }
         return surveys;
     }
 
@@ -60,13 +57,10 @@ public class SurveyService {
      * Find the survey submitted by the guest for a particular reservation
      * @param resId A reservation Id
      * @param guestId A guest's id
-     * @return A survey object if one is found
+     * @return A list of survey objects
      */
     public List<Survey> findSurveyByReservationAndGuest(String resId, String guestId) {
         List<Survey> surveys = SURVEY_REPO.findSurveyByReservationAndGuest(resId, guestId);
-        if (surveys.isEmpty()){
-            throw new NoSuchElementException(String.format("No survey has been submitted for reservation with id=%s by guest with id=%s", resId, guestId));
-        }
         return surveys;
     }
 }

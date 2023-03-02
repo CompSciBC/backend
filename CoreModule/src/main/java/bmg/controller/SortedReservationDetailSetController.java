@@ -13,6 +13,7 @@ import java.util.List;
  * Handles requests for {@link SortedReservationDetailSet} objects
  */
 @RestController
+@CrossOrigin
 @RequestMapping("/api/reservations-by-status")
 @RequiredArgsConstructor
 public class SortedReservationDetailSetController extends Controller<SortedReservationDetailSet> {
