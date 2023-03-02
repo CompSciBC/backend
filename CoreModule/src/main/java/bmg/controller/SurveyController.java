@@ -7,46 +7,60 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @RestController
-@RequestMapping("/api/survey")
+@RequestMapping("/api/surveys")
 @RequiredArgsConstructor
-public class SurveyController extends Controller<Object> {
+public class SurveyController extends Controller<Survey> {
     private final SurveyService surveyService;
 
     /**
-     * Saves survey result for a particular reservation
-     *
-     * @param invitation An invitation
-     * @return A response entity containing the result of the email transaction
+     * Saves survey submitted by a guest for a particular reservation
+     * @param resId A reservation id
+     * @param guestId  A guest id
+     * @param guestSurveyResponse   A guest's survey response
+     * @return A response entity containing the survey just submitted
      */
-    // TODO: change response type back to ResponseEntity<Response<Object>>
-    @PostMapping("/{res_id}/{guest_id}/save-survey")
-    public Object saveSurvey(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId, @RequestBody String guestSurveyResponse) {
-        // ResponseEntity test = new ResponseEntity<>(null);
-        return surveyService.saveSurvey(resId, guestId, guestSurveyResponse);
-        // return responseCodeOk(List.of("Survey saved successfully."));
-
+    @PostMapping("/save")
+    public ResponseEntity<Response<Survey>> saveSurvey(@RequestParam(required = true) String resId, @RequestParam(required = true) String guestId, @RequestBody String guestSurveyResponse) {
+        Survey s = surveyService.saveSurvey(resId, guestId, guestSurveyResponse);
+        return responseCodeCreated(List.of(s), "/" + s.getId());
     }
 
-    @GetMapping("/{res_id}/find-survey")
-    public Object findSurveyByReservation(@PathVariable(name = "res_id") String resId) {
-        return surveyService.findSurveyByReservation(resId);
+    /**
+     * Finds all surveys submitted for a particular host, reservation, or property
+     * @param resId A reservation id
+     * @return 
+     */
+    @GetMapping("")
+    public ResponseEntity<Response<Survey>> findSurveysByIndex(@RequestParam(required = true) String index, @RequestParam(required = true) String id) {
+        List<Survey> surveys = new ArrayList<Survey>();
+        if (index.equals("reservation")){
+            surveys = surveyService.findAllSurveysByReservation(id);
+        } else if (index.equals("property")){
+            surveys = surveyService.findAllSurveysByProperty(id);
+        } else if (index.equals("host")){
+            surveys = surveyService.findAllSurveysByHost(id);
+        }
+        if (surveys.isEmpty()){
+            return responseCodeNotFound("no surveys found");
+        } else {
+            return responseCodeOk(surveys);
+        }
+        
     }
 
-    @GetMapping("/{res_id}/{guest_id}/find-survey")
-    public Survey findSurveyByReservationAndGuest(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId) {
+    /**
+     * Finds all surveys submitted by a guest for a reservation
+     * @param resId
+     * @param guestId
+     * @return
+     */
+    @GetMapping("/{res_id}/{guest_id}")
+    public ResponseEntity<Response<Survey>> findSurveyByReservationAndGuest(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId) {
         Survey s = surveyService.findSurveyByReservationAndGuest(resId, guestId);
-        return s;
+        return responseCodeOk(List.of(s));
     }
 
-    @GetMapping("/{prop_id}/find-all-surveys")
-    public List<Survey> findAllSurveysForProperty(@PathVariable(name = "prop_id") String propId) {
-        return surveyService.findAllSurveysForProperty(propId);
-    }
-
-    @GetMapping("/{host_id}/find-surveys")
-    public List<Survey> findAllSurveysForHost(@PathVariable(name = "host_id") String hostId) {
-        return surveyService.findAllSurveysForHost(hostId);
-    }
 }

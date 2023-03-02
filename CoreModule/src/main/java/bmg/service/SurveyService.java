@@ -1,5 +1,4 @@
 package bmg.service;
-import bmg.dto.SurveyResponse;
 import bmg.model.Survey;
 import bmg.model.Reservation;
 import bmg.repository.SurveyRepository;
@@ -15,61 +14,86 @@ import java.util.*;
 public class SurveyService {
     private final SurveyRepository SURVEY_REPO;
     private final ReservationService reservationService;
+
     /**
-     * Saves survey response
-     *
-     * @param resId A reservation id
+     * Saves a survey response
+     * @param resId A reservation's id
+     * @param guestId   A guest's id
      * @param surveyResponse A guest's survey response
+     * @return a Survey object
      */
-    // TODO: change return type back to void
-    // TODO: change setId to something actual
-    public String saveSurvey(String resId, String guestId, String surveyResponse) {
+    public Survey saveSurvey(String resId, String guestId, String surveyResponse) {
+        Reservation res = reservationService.findOne(resId);
+        Survey s = new Survey();
+        // If a guest already submitted a survey for this reservation, update the survey response and submission time. If not, create a new survey object
         try {
-            // return surveyResponse;
-            // Example Reservation Object: Reservation(id=test-res-1, guestId=test-guest-1, hostId=test-host-1, propertyId=test-prop-1, numGuests=2, checkIn=2023-01-01T12:00, checkOut=2099-01-01T12:00, reasonForStay=business, isPrimary=true)
-            Reservation res = reservationService.findOne(resId);
-            Survey s = new Survey();
+            Survey submittedSurvey = findSurveyByReservationAndGuest(resId, guestId);
+            s = submittedSurvey;
+            s.setSurveyResponse(surveyResponse);
+        } catch (NoSuchElementException e) {
             s.setGuestId(guestId);
             s.setSurveyResponse(surveyResponse);
             s.setReservationId(resId);
-            s.setSubmissionTime(LocalDateTime.now());
             s.setHostId(res.getHostId());
             s.setPropertyId(res.getPropertyId());
-            s.setId(resId);
-            SURVEY_REPO.saveOne(s);
-            return s.toString();
-        } catch(Exception e) {
-            return e.getMessage();
         }
+        s.setSubmissionTime(LocalDateTime.now());
+        SURVEY_REPO.saveOne(s);
+        return s;
     }
 
-    public String findSurveyByReservation(String resId) {
-        try {
-            // Example Reservation Object queried back: Survey(id=hndo-test-res-1, guestId=hndo_guest1, hostId=hndo_host1, reservationId=hndo-test-res-1, propertyId=hndo-prop-1, submissionTime=2023-02-11T21:43:25, surveyResponse=some_response)
-            List<Survey> surveyList = SURVEY_REPO.findSurveyByReservation(resId);
-            return surveyList.get(0).toString();
-        } catch(Exception e) {
-            return e.getMessage();
+    /**
+     * Find all surveys associated with a reservation
+     * @param resId reservation id
+     * @return a List of Survey objects if at least one is found
+     */
+    public List<Survey> findAllSurveysByReservation(String resId) {
+        List<Survey> surveyList = SURVEY_REPO.findSurveysByReservation(resId);
+        if (surveyList.isEmpty()){
+            throw new NoSuchElementException("No Survey has been submitted for Reservation with id="+resId+".");
         }
+        return surveyList;
     }
 
+    /**
+     * Find the survey submitted by the guest for a particular reservation
+     * @param resId A reservation Id
+     * @param guestId A guest's id
+     * @return A survey object if one is found
+     */
     public Survey findSurveyByReservationAndGuest(String resId, String guestId) {
-        // Example Reservation Object queried back: Survey(id=hndo-test-res-1, guestId=hndo_guest1, hostId=hndo_host1, reservationId=hndo-test-res-1, propertyId=hndo-prop-1, submissionTime=2023-02-11T21:43:25, surveyResponse=some_response)
-        List<Survey> surveyList = SURVEY_REPO.findSurveyByReservation(resId);
+        List<Survey> surveyList = SURVEY_REPO.findSurveysByReservation(resId);
         for (Survey s : surveyList) {
             if (s.getGuestId().equals(guestId)){
                 return s;
             }
         }
-        throw new NoSuchElementException("no entity found");
+        throw new NoSuchElementException("No Survey has been submitted by Guest with id=" + guestId + " for Reservation with id="+resId+".");
     }
 
-    public List<Survey> findAllSurveysForProperty(String propId){
-        return SURVEY_REPO.findSurveysByProperty(propId);
+    /**
+     * Find all surveys associated with a property
+     * @param propId A property Id
+     * @return a List of Survey objects if at least one is found
+     */
+    public List<Survey> findAllSurveysByProperty(String propId){
+        List<Survey> surveyList = SURVEY_REPO.findSurveysByProperty(propId);
+        if (surveyList.isEmpty()){
+            throw new NoSuchElementException("No Survey has been submitted for Property with id="+propId+".");
+        }
+        return surveyList;
     }
 
-    public List<Survey> findAllSurveysForHost(String hostId){
-        return SURVEY_REPO.findSurveysByHost(hostId);
+    /**
+     * Find all surveys associated with a host
+     * @param hostId a Host id
+     * @return a List of Survey objects if at least one is found
+     */
+    public List<Survey> findAllSurveysByHost(String hostId){
+        List<Survey> surveyList = SURVEY_REPO.findSurveysByHost(hostId);
+        if (surveyList.isEmpty()){
+            throw new NoSuchElementException("No Survey has been submitted for Host with id="+hostId+".");
+        }
+        return surveyList;
     }
-    
 }
