@@ -25,34 +25,35 @@ public class SurveyService {
     public Survey saveSurvey(String resId, String guestId, String surveyResponse) {
         Reservation res = reservationService.findOne(resId);
         Survey s = new Survey();
-        // If a guest already submitted a survey for this reservation, update the survey response and submission time. If not, create a new survey object
-        try {
-            Survey submittedSurvey = findSurveyByReservationAndGuest(resId, guestId);
-            s = submittedSurvey;
-            s.setSurveyResponse(surveyResponse);
-        } catch (NoSuchElementException e) {
-            s.setGuestId(guestId);
-            s.setSurveyResponse(surveyResponse);
-            s.setReservationId(resId);
-            s.setHostId(res.getHostId());
-            s.setPropertyId(res.getPropertyId());
-        }
+        s.setGuestId(guestId);
+        s.setSurveyResponse(surveyResponse);
+        s.setReservationId(resId);
+        s.setHostId(res.getHostId());
+        s.setPropertyId(res.getPropertyId());
         s.setSubmissionTime(LocalDateTime.now());
         SURVEY_REPO.saveOne(s);
         return s;
     }
 
     /**
-     * Find all surveys associated with a reservation
-     * @param resId reservation id
-     * @return a List of Survey objects if at least one is found
+     * Finds list of surveys by the index
+     * @param index
+     * @param id
+     * @return List of Survey Objects
      */
-    public List<Survey> findAllSurveysByReservation(String resId) {
-        List<Survey> surveyList = SURVEY_REPO.findSurveysByReservation(resId);
-        if (surveyList.isEmpty()){
-            throw new NoSuchElementException("No Survey has been submitted for Reservation with id="+resId+".");
+    public List<Survey> findSurveysByIndex(String index, String id) {
+        List<Survey> surveys = new ArrayList<Survey>();
+        if (index.equals("reservation")){
+            surveys = SURVEY_REPO.findSurveysByReservation(id);
+        } else if (index.equals("property")){
+            surveys = SURVEY_REPO.findSurveysByIndex(Survey.Index.PROPERTY, id);
+        } else if (index.equals("host")){
+            surveys = SURVEY_REPO.findSurveysByIndex(Survey.Index.HOST, id);
         }
-        return surveyList;
+        if (surveys.isEmpty()){
+            throw new NoSuchElementException(String.format("No survey has been submitted for %s with id=%s", index.toString().toLowerCase(), id));
+        }
+        return surveys;
     }
 
     /**
@@ -61,39 +62,11 @@ public class SurveyService {
      * @param guestId A guest's id
      * @return A survey object if one is found
      */
-    public Survey findSurveyByReservationAndGuest(String resId, String guestId) {
-        List<Survey> surveyList = SURVEY_REPO.findSurveysByReservation(resId);
-        for (Survey s : surveyList) {
-            if (s.getGuestId().equals(guestId)){
-                return s;
-            }
+    public List<Survey> findSurveyByReservationAndGuest(String resId, String guestId) {
+        List<Survey> surveys = SURVEY_REPO.findSurveyByReservationAndGuest(resId, guestId);
+        if (surveys.isEmpty()){
+            throw new NoSuchElementException(String.format("No survey has been submitted for reservation with id=%s by guest with id=%s", resId, guestId));
         }
-        throw new NoSuchElementException("No Survey has been submitted by Guest with id=" + guestId + " for Reservation with id="+resId+".");
-    }
-
-    /**
-     * Find all surveys associated with a property
-     * @param propId A property Id
-     * @return a List of Survey objects if at least one is found
-     */
-    public List<Survey> findAllSurveysByProperty(String propId){
-        List<Survey> surveyList = SURVEY_REPO.findSurveysByProperty(propId);
-        if (surveyList.isEmpty()){
-            throw new NoSuchElementException("No Survey has been submitted for Property with id="+propId+".");
-        }
-        return surveyList;
-    }
-
-    /**
-     * Find all surveys associated with a host
-     * @param hostId a Host id
-     * @return a List of Survey objects if at least one is found
-     */
-    public List<Survey> findAllSurveysByHost(String hostId){
-        List<Survey> surveyList = SURVEY_REPO.findSurveysByHost(hostId);
-        if (surveyList.isEmpty()){
-            throw new NoSuchElementException("No Survey has been submitted for Host with id="+hostId+".");
-        }
-        return surveyList;
+        return surveys;
     }
 }

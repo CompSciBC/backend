@@ -25,7 +25,7 @@ public class SurveyController extends Controller<Survey> {
     @PostMapping("/save")
     public ResponseEntity<Response<Survey>> saveSurvey(@RequestParam(required = true) String resId, @RequestParam(required = true) String guestId, @RequestBody String guestSurveyResponse) {
         Survey s = surveyService.saveSurvey(resId, guestId, guestSurveyResponse);
-        return responseCodeCreated(List.of(s), "/" + s.getId());
+        return responseCodeCreated(List.of(s), "/" + s.getReservationId());
     }
 
     /**
@@ -35,32 +35,19 @@ public class SurveyController extends Controller<Survey> {
      */
     @GetMapping("")
     public ResponseEntity<Response<Survey>> findSurveysByIndex(@RequestParam(required = true) String index, @RequestParam(required = true) String id) {
-        List<Survey> surveys = new ArrayList<Survey>();
-        if (index.equals("reservation")){
-            surveys = surveyService.findAllSurveysByReservation(id);
-        } else if (index.equals("property")){
-            surveys = surveyService.findAllSurveysByProperty(id);
-        } else if (index.equals("host")){
-            surveys = surveyService.findAllSurveysByHost(id);
-        }
-        if (surveys.isEmpty()){
-            return responseCodeNotFound("no surveys found");
-        } else {
-            return responseCodeOk(surveys);
-        }
-        
+        List<Survey> surveys = surveyService.findSurveysByIndex(index, id);
+        return responseCodeOk(surveys); 
     }
 
     /**
-     * Finds all surveys submitted by a guest for a reservation
+     * Finds the survey submitted by a guest for a reservation
      * @param resId
      * @param guestId
      * @return
      */
     @GetMapping("/{res_id}/{guest_id}")
     public ResponseEntity<Response<Survey>> findSurveyByReservationAndGuest(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId) {
-        Survey s = surveyService.findSurveyByReservationAndGuest(resId, guestId);
-        return responseCodeOk(List.of(s));
+        List<Survey> surveys = surveyService.findSurveyByReservationAndGuest(resId, guestId);
+        return responseCodeOk(surveys);
     }
-
 }

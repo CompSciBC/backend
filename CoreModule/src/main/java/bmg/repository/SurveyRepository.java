@@ -52,33 +52,30 @@ public class SurveyRepository {
      * @return List of Survey Objects
      */
      public List<Survey> findSurveysByReservation(String resId) {
-        return findSurveysByIndex(Survey.Index.RESERVATION, resId);
+      Map<String, AttributeValue> values = new HashMap<>();
+      values.put(":id", new AttributeValue().withS(resId));
+      return MAPPER.query(
+         Survey.class,
+         new DynamoDBQueryExpression<Survey>()
+                 .withKeyConditionExpression("reservationId = :id")
+                 .withExpressionAttributeValues(values)
+                 .withConsistentRead(false));
      }
 
      /**
-      * Finds list of surveys associated with a property
+      * Find the survey submitted for a reservation by a guest
       * @param propId
       * @return List of Survey Objects
       */
-     public List<Survey> findSurveysByProperty(String propId) {
-        return findSurveysByIndex(Survey.Index.PROPERTY, propId);
-     }
-
-     /**
-      * Finds list of surveys associated with a host
-      * @param hostId
-      * @return List of Survey Objects
-      */
-     public List<Survey> findSurveysByHost(String hostId) {
-        return findSurveysByIndex(Survey.Index.HOST, hostId);
-     }
-
-     /**
-      * Finds list of surveys associated with a guest
-      * @param guestId
-      * @return List of Survey Objects
-      */
-      public List<Survey> findSurveysByGuest(String guestId) {
-        return findSurveysByIndex(Survey.Index.GUEST, guestId);
+     public List<Survey> findSurveyByReservationAndGuest(String resId, String guestId) {
+      Map<String, AttributeValue> values = new HashMap<>();
+      values.put(":r_id", new AttributeValue().withS(resId));
+      values.put(":g_id", new AttributeValue().withS(guestId));
+      return MAPPER.query(
+         Survey.class,
+         new DynamoDBQueryExpression<Survey>()
+                 .withKeyConditionExpression("reservationId = :r_id and guestId = :g_id")
+                 .withExpressionAttributeValues(values)
+                 .withConsistentRead(false));
      }
 }
