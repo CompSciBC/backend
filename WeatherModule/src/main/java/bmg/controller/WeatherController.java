@@ -20,14 +20,7 @@ public class WeatherController {
     }
 
     @GetMapping(value = {""})
-    public Object getWeatherForecast() throws URISyntaxException, IOException {
-        return nwsWeatherService.returnWeatherReport();
+    public Object getWeatherForecast(@RequestParam(name = "address") String address) {
+        return nwsWeatherService.getForecast(address);
     }
-
-    // TODO: delete after demo to group
-    @GetMapping(value = {"/dynamoDemo"})
-    public Object getDummyWeatherData() throws URISyntaxException, IOException {
-        return nwsWeatherService.saveAndRetrieveObjectFromDynamoDBDemo();
-    }
-
 }
