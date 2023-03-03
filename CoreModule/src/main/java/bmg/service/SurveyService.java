@@ -59,7 +59,8 @@ public class SurveyService {
      * @param guestId A guest's id
      * @return A list of survey objects
      */
-    public Survey findSurveyByReservationAndGuest(String resId, String guestId) {
-        return SURVEY_REPO.findSurveyByReservationAndGuest(resId, guestId);
+    public List<Survey> findSurveyByReservationAndGuest(String resId, String guestId) {
+        List<Survey> surveys = SURVEY_REPO.findSurveyByReservationAndGuest(resId, guestId);
+        return surveys;
     }
 }
