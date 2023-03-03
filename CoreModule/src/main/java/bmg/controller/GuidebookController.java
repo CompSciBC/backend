@@ -1,14 +1,11 @@
 package bmg.controller;
 
 import bmg.dto.Guidebook;
-import bmg.model.Property;
 import bmg.service.GuidebookService;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.model.S3Object;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,14 +18,33 @@ public class GuidebookController extends Controller<Guidebook> {
 
     private final GuidebookService SVC;
 
-    @PostMapping("/{id}")
-    public String saveGuidebook(@PathVariable(name = "id") String id, @RequestBody Guidebook gb) {
-        return SVC.saveToS3(id, gb);
+    @PostMapping("/{id}/content")
+    public String saveGuidebookContent(@PathVariable(name = "id") String id, @RequestBody Guidebook gb) {
+        return SVC.saveGbContentToS3(id, gb);
     }
 
-    @GetMapping("/{id}")
-    public Guidebook retrieveGuidebook(@PathVariable(name = "id") String id) throws IOException {
-        return SVC.retrieveFromS3(id);
+    @GetMapping("/{id}/content")
+    public Guidebook retrieveGuidebookContent(@PathVariable(name = "id") String id) throws IOException {
+        return SVC.retrieveGbContentFromS3(id);
     }
 
+    @PostMapping("/{id}/images")
+    public List<String> uploadGuidebookImages(@PathVariable(name = "id") String id, @RequestParam("files") MultipartFile[] files) throws IOException {
+        return SVC.saveGbImagesToS3(id, files);
+    }
+//    @PostMapping("/{id}/image")
+//    public String uploadGuidebookImage(String id, MultipartFile file) {
+//        return SVC.saveGbImageToS3(id, file);
+//    }
+
+    @GetMapping("/{id}/images")
+    public List<String> getImagesFromS3(@PathVariable(name = "id") String id) {
+        return SVC.retrieveGbImagesFromS3(id);
+    }
+
+
+    @GetMapping("/{id}/delete")
+    public void deleteGuidebook(@PathVariable(name = "id") String id) {
+        SVC.deleteGuidebook(id);
+    }
 }
