@@ -67,15 +67,10 @@ public class SurveyRepository {
       * @param propId
       * @return List of Survey Objects
       */
-     public List<Survey> findSurveyByReservationAndGuest(String resId, String guestId) {
-      Map<String, AttributeValue> values = new HashMap<>();
-      values.put(":r_id", new AttributeValue().withS(resId));
-      values.put(":g_id", new AttributeValue().withS(guestId));
-      return MAPPER.query(
-         Survey.class,
-         new DynamoDBQueryExpression<Survey>()
-                 .withKeyConditionExpression("reservationId = :r_id and guestId = :g_id")
-                 .withExpressionAttributeValues(values)
-                 .withConsistentRead(false));
+     public Survey findSurveyByReservationAndGuest(String resId, String guestId) {
+      Survey survey = new Survey();
+      survey.setReservationId(resId);
+      survey.setGuestId(guestId);
+      return MAPPER.load(Survey.class, survey);
      }
 }
