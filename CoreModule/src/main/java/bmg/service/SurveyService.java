@@ -59,8 +59,10 @@ public class SurveyService {
      * @param guestId A guest's id
      * @return A list of survey objects
      */
-    public Survey findSurveyByReservationAndGuest(String resId, String guestId) {
-        // List<Survey> surveys = SURVEY_REPO.findSurveyByReservationAndGuest(resId, guestId);
-        return SURVEY_REPO.findSurveyByReservationAndGuest(resId, guestId);
+    public Survey findSurveyByReservationAndGuest(String resId, String guestId) {   
+        Survey s = SURVEY_REPO.findSurveyByReservationAndGuest(resId, guestId);
+        if (s == null) 
+            throw new NoSuchElementException("Guest with id="+guestId+" has not submitted a survey for reservation=" + resId);
+        return s;
     }
 }

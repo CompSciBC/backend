@@ -68,6 +68,9 @@ public class SurveyRepository {
       * @return List of Survey Objects
       */
      public Survey findSurveyByReservationAndGuest(String resId, String guestId) {
-        return MAPPER.load(Survey.class, resId, guestId);
+        Survey s = new Survey();
+        s.setReservationId(resId);
+        s.setGuestId(guestId);
+        return MAPPER.load(s);
      }
 }

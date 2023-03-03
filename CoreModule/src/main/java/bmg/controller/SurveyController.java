@@ -1,13 +1,12 @@
 package bmg.controller;
-import bmg.dto.SurveyResponse;
 import bmg.model.Survey;
 import bmg.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.ArrayList;
 
 @RestController
 @CrossOrigin
