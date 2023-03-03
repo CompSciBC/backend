@@ -48,7 +48,7 @@ public class SurveyController extends Controller<Survey> {
      */
     @GetMapping("/{res_id}/{guest_id}")
     public ResponseEntity<Response<Survey>> findSurveyByReservationAndGuest(@PathVariable(name = "res_id") String resId, @PathVariable(name = "guest_id") String guestId) {
-        List<Survey> surveys = surveyService.findSurveyByReservationAndGuest(resId, guestId);
-        return responseCodeOk(surveys);
+        Survey s = surveyService.findSurveyByReservationAndGuest(resId, guestId);
+        return responseCodeOk(List.of(s));
     }
 }
