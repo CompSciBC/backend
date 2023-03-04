@@ -14,64 +14,44 @@ import bmg.model.Forecast;
 import bmg.model.ForecastDTO;
 import org.springframework.beans.BeanUtils;
 import bmg.service.CoordinatesService;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
 
 @Service
 public class NwsWeatherService {
 
-    
-    private final CoordinatesService CS = new CoordinatesService();
-    
-
-    // // Method to make an HTTP API call and return the response as a JSONObject
-    // private JSONObject getAPIResponse(URL url) throws IOException{
-        
-    //     URLConnection conn = url.openConnection();
-    //     BufferedReader in = new BufferedReader(
-    //                             new InputStreamReader(
-    //                             conn.getInputStream()));
-    //     String currentLine;
-    //     StringBuilder jsonString = new StringBuilder();
+    @Autowired
+    private CoordinatesService CS;
 
 
-    //     while ((currentLine = in.readLine()) != null){
-    //         jsonString.append(currentLine);
-    //     }
-    //     in.close();
-    //     JSONObject jsonObj = new JSONObject(jsonString.toString());
-    //     return jsonObj;
-    // }
-
-    // private List<String> getGridEndPoint(double latitude, double longitude) throws IOException{
-    //     URL getEndpointURL = new URL(
-    //         String.format("https://api.weather.gov/points/%f,%f",latitude, longitude));
-    //     JSONObject response = getAPIResponse(getEndpointURL);
-    //     String office = response.getJSONObject("properties").get("gridId").toString();
-    //     String gridX = response.getJSONObject("properties").get("gridX").toString();
-    //     String gridY = response.getJSONObject("properties").get("gridY").toString();
-    //     return Arrays.asList(office, gridX, gridY);
-    // }
-
-    // // calls the NWS API to get the forecast for a given grid and 
-    // // return forecast portion of the JSON response as a JSONArray
-    // private JSONObject getForecast1(List<String> endpoints) throws IOException{
-    //     String office = endpoints.get(0);
-    //     String gridX = endpoints.get(1);
-    //     String gridY = endpoints.get(2);
-    //     URL getForecastURL = new URL(
-    //         String.format("https://api.weather.gov/gridpoints/%s/%s,%s/forecast",office, gridX, gridY));
-    //     JSONObject response = getAPIResponse(getForecastURL);
-    //     // return response.getJSONObject("properties").getJSONArray("periods");
-    //     return response.getJSONObject("properties");
-    // }
-
-    public Object getForecast(String address){
+    // calls the NWS API to get the forecast for a given grid and 
+    // return forecast portion of the JSON response as a JSONArray
+    private String getForecastUrl(String address) {
         try {
-            return CS.getCoordinates(address);
+            Coordinates c = CS.getCoordinates(address);
+            RestTemplate restTemplate = new RestTemplate();
+            String request = String.format("https://api.weather.gov/points/%s,%s", c.getLatitude().toString(), c.getLongitude().toString());
+
+            // TODO: What happens when thing doesn't return the proper thing
+            JSONObject response = new JSONObject(restTemplate.getForObject(request, String.class));
+            String forecastUrl = response.getJSONObject("properties").getString("forecast");
+            return forecastUrl;
         } catch (Exception e) {
             return e.toString();
         }
-        
-        
+    }
+
+    public Object getForecast(String address){
+        try {
+            String forecastUrl = getForecastUrl(address);
+            RestTemplate restTemplate = new RestTemplate();
+            JSONObject response = new JSONObject(restTemplate.getForObject(forecastUrl, String.class));
+
+            return response.getJSONObject("properties").getJSONArray("periods").toString();
+        } catch (Exception e) {
+            return e.toString();
+        }
     }
 
 }
