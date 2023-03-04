@@ -33,11 +33,18 @@ public abstract class RestaurantService {
     private final String KEYWORDS_KEY;
     private final String MAX_PRICE_KEY;
     private final String OPEN_NOW_KEY;
+    private final String NUM_RESULTS_KEY;
     private final String RESPONSE_ROOT_FIELD;
     private final ObjectMapper MAPPER;
 
-    public RestaurantService(String authorizationHeader, String radiusKey, String keywordsKey, String maxPriceKey,
-                             String openNowKey, String responseRootField, StdDeserializer<Restaurant> deserializer) {
+    public RestaurantService(String authorizationHeader,
+                             String radiusKey,
+                             String keywordsKey,
+                             String maxPriceKey,
+                             String openNowKey,
+                             String numResultsKey,
+                             String responseRootField,
+                             StdDeserializer<Restaurant> deserializer) {
 
         this.CLIENT = HttpClient.newHttpClient();
         this.AUTHORIZATION_HEADER = authorizationHeader;
@@ -45,6 +52,7 @@ public abstract class RestaurantService {
         this.KEYWORDS_KEY = keywordsKey;
         this.MAX_PRICE_KEY = maxPriceKey;
         this.OPEN_NOW_KEY = openNowKey;
+        this.NUM_RESULTS_KEY = numResultsKey;
         this.RESPONSE_ROOT_FIELD = responseRootField;
 
         ObjectMapper mapper = new ObjectMapper();
@@ -89,6 +97,9 @@ public abstract class RestaurantService {
         url += getParameter(KEYWORDS_KEY, Arrays.toString(filters.getKeywords()).replaceAll("[\\[\\]]", ""));
         url += getParameter(MAX_PRICE_KEY, filters.getMaxPrice());
         url += getParameter(OPEN_NOW_KEY, filters.getOpenNow());
+
+        if (NUM_RESULTS_KEY != null)
+            url += getParameter(NUM_RESULTS_KEY, filters.getNumResults());
 
         return get(url);
     }
@@ -135,7 +146,7 @@ public abstract class RestaurantService {
      * Creates a URL for a search based on the given address and radius
      *
      * @param address An address to search around; must not be null
-     * @param radius The radius (in meters) to search around the given address
+     * @param radius The radius (in meters) to search around the given address (default 40km)
      * @return A URL for a search based on the given address and radius
      * @throws IllegalArgumentException if address is null
      */

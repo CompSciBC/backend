@@ -34,3 +34,4 @@ build/
 
 secrets.properties
 **/.DS_Store
+dst/

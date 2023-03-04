@@ -9,8 +9,7 @@ import lombok.Getter;
  */
 @Getter
 public class ReservationDetail extends Reservation {
-    private String propertyName;
-    private String address;
+    private final Property PROPERTY;
 
     public ReservationDetail(Reservation reservation, Property property) {
         setId(reservation.getId());
@@ -22,7 +21,6 @@ public class ReservationDetail extends Reservation {
         setCheckOut(reservation.getCheckOut());
         setReasonForStay(reservation.getReasonForStay());
         setIsPrimary(reservation.getIsPrimary());
-        propertyName = property.getName();
-        address = property.getAddress();
+        this.PROPERTY = property;
     }
 }

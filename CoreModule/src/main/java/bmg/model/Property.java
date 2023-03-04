@@ -1,5 +1,7 @@
 package bmg.model;
 
+import bmg.converter.AddressConverter;
+import bmg.dto.Address;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import lombok.Data;
 
@@ -22,5 +24,6 @@ public class Property {
     private String name;
 
     @DynamoDBAttribute(attributeName = "address")
-    private String address;
+    @DynamoDBTypeConverted(converter = AddressConverter.class)
+    private Address address;
 }
