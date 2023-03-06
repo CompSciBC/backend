@@ -14,8 +14,8 @@ import java.util.stream.StreamSupport;
 /**
  * Deserializes response object from Yelp Fusion into a {@link Restaurant}
  */
-public class RestaurantDeserializerYelpFusion extends StdDeserializer<Restaurant> {
-    public RestaurantDeserializerYelpFusion() {
+public class RestaurantDeserializerYelp extends StdDeserializer<Restaurant> {
+    public RestaurantDeserializerYelp() {
         super(Restaurant.class);
     }
 
@@ -25,10 +25,9 @@ public class RestaurantDeserializerYelpFusion extends StdDeserializer<Restaurant
 
         return Restaurant.builder()
                 .id(node.at("/id").asText())
-                .alias(node.at("/alias").asText())
                 .name(node.at("/name").asText())
-                .imageUrl(node.at("/image_url").asText())
-                .isOpen(!node.at("/is_closed").asBoolean())
+                .imageUrl(node.at("/photos/0").asText())
+                .isOpen(node.at("/hours/0/is_open_now").asBoolean())
                 .url(node.at("/url").asText())
                 .numReviews(node.at("/review_count").asInt())
                 .categories(StreamSupport
@@ -49,7 +48,7 @@ public class RestaurantDeserializerYelpFusion extends StdDeserializer<Restaurant
                         node.at("/location/address2").asText(),
                         node.at("/location/city").asText(),
                         node.at("/location/state").asText(),
-                        node.at("/location/zip_code").asText(),
+                        node.at("/location/postal_code").asText(),
                         node.at("/location/country").asText()))
                 .phone(node.at("/phone").asText())
                 .displayPhone(node.at("/display_phone").asText())

@@ -4,8 +4,7 @@ import bmg.dto.Address;
 import bmg.dto.Restaurant;
 import bmg.dto.RestaurantFilters;
 import bmg.service.RestaurantService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,20 +19,14 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/restaurants")
+@RequiredArgsConstructor
 public class RestaurantController {
 
-    @Autowired
-    @Qualifier("yelp")
-    private RestaurantService yelp;
-
-    @Autowired
-    @Qualifier("google")
-    private RestaurantService google;
+    private final RestaurantService SVC;
 
     /**
      * Gets a list of restaurants matching the given parameters
      *
-     * @param source Determines the source of the list (Yelp or Google)
      * @param line1 An address line 1 to search
      * @param line2 An address line 2 to search
      * @param city A city to search
@@ -47,9 +40,8 @@ public class RestaurantController {
      * @param numResults The maximum number of results to return
      * @return A list of restaurants matching the given parameters
      */
-    @GetMapping(value = {"", "/{source}"})
+    @GetMapping("")
     public ResponseEntity<Response2<List<Restaurant>>> getAll(
-            @PathVariable(required = false) String source,
             @RequestParam(required = false) String line1,
             @RequestParam(required = false) String line2,
             @RequestParam(required = false) String city,
@@ -81,20 +73,8 @@ public class RestaurantController {
         HttpStatus status;
         String message;
 
-        if (source == null)
-            source = "yelp";
-
         try {
-            switch (source) {
-                case "google":
-                    data = google.getRestaurants(filters);
-                    break;
-
-                case "yelp":
-                default:
-                    data = yelp.getRestaurants(filters);
-                    break;
-            }
+            data = SVC.getRestaurants(filters);
             status = HttpStatus.OK;
             message = status.name();
 
