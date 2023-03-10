@@ -40,8 +40,8 @@ public class ReservationController extends Controller<Reservation> {
      * Gets all reservations with the given id
      *
      * @param id A reservation id
-     * @param primary Set to true to filter reservations for only primary entries,
-     *                or false/undefined to perform no filtering
+     * @param primary Set to true to filter reservations for only the primary entry,
+     *                or false/undefined to filter for only non-primary entries
      * @return A response entity containing a list of reservations
      */
     @GetMapping("/{id}")
@@ -52,8 +52,8 @@ public class ReservationController extends Controller<Reservation> {
         List<Reservation> reservations;
 
         if (primary == null || !primary)
-            // find all reservations with this id
-            reservations = SVC.findAll(id);
+            // find all non-primary reservations with this id
+            reservations = SVC.findAll(id, true);
         else
             // find only the primary reservation with this id
             reservations = List.of(SVC.findOne(id));
