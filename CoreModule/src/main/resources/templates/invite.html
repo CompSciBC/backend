@@ -23,7 +23,7 @@
             </p>
             <h4>Message from <span th:text="${invitor}">[INVITOR]</span>:</h4>
             <p th:text="${optionalMessage}">[OPTIONAL_MESSAGE]</p>
-            <a th:href="${addReservationLink}">[LINK]</a>
+            <a th:href="${addReservationLink}" th:text="${addReservationLink}">[LINK]</a>
             <p>
                 Best regards,<br />
                 The BeMyGuest Team
