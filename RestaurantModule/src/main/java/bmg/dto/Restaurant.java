@@ -10,7 +10,6 @@ import lombok.Data;
 @Builder
 public class Restaurant {
     private String id;
-    private String alias;
     private String name;
     private String imageUrl;
     private Boolean isOpen;
