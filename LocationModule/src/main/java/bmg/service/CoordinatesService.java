@@ -18,7 +18,7 @@ public class CoordinatesService {
     public Coordinates getCoordinates(String address) throws ExecutionException, InterruptedException {
         //return Coordinates for Space Needle (lat: 47.6205; lon: 122.3493);
         try {
-            System.out.println(key);
+            // System.out.println(key);
             GeoApiContext context = new GeoApiContext.Builder().apiKey(key).build();
             GeocodingResult[] results = GeocodingApi.geocode(context, address).await();
 

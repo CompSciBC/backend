@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 
+@CrossOrigin
 @RestController
 @RequestMapping("api/coordinates")
 public class CoordinatesController {
@@ -24,5 +25,5 @@ public class CoordinatesController {
     }
 }
 
-//@requestParam String "Address"
+
 
