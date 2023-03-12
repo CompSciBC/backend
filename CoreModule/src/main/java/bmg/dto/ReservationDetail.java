@@ -14,13 +14,13 @@ public class ReservationDetail extends Reservation {
     public ReservationDetail(Reservation reservation, Property property) {
         setId(reservation.getId());
         setGuestId(reservation.getGuestId());
-        setHostId(property.getHostId());
+        setHostId(reservation.getHostId());
         setPropertyId(property.getId());
         setNumGuests(reservation.getNumGuests());
         setCheckIn(reservation.getCheckIn());
         setCheckOut(reservation.getCheckOut());
         setReasonForStay(reservation.getReasonForStay());
-        setIsPrimary(reservation.getIsPrimary());
+        setInviteCode(reservation.getInviteCode());
         this.PROPERTY = property;
     }
 }
