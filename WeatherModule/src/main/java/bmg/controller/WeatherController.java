@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +22,7 @@ public class WeatherController {
     }
 
     @GetMapping(value = {""})
-    public Object getWeatherForecast(@RequestParam(name = "address") String address) {
-        return nwsWeatherService.getForecast(address);
+    public Object getWeatherForecast(@RequestParam(name = "address") String address) throws InterruptedException, ExecutionException {
+        return nwsWeatherService.getTenDayForecast(address).toString();
     }
 }
