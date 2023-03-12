@@ -2,7 +2,6 @@ package bmg.service;
 
 import bmg.dto.Guidebook;
 import bmg.repository.GuidebookRepository;
-import com.amazonaws.SdkClientException;
 import lombok.RequiredArgsConstructor;
 import com.amazonaws.services.s3.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +13,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -40,61 +38,30 @@ public class GuidebookService {
                 ObjectMapper mapper = new ObjectMapper();
                 return mapper.readValue(objectData, Guidebook.class);
             }
+        return null;
     }
 
     public List<String> saveGbImagesToS3(String id, MultipartFile[] files) throws IOException {
         List<String> urls = new ArrayList<>();
         String uniqueObjectKey;
         for (MultipartFile file : files) {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
-
-            uniqueObjectKey = UUID.randomUUID() + "-" + file.getOriginalFilename();
-            System.out.println(uniqueObjectKey);
-            ///
-            // PutObjectRequest request = new PutObjectRequest(bucket,uniqueObjectKey, file.getInputStream(), metadata).withKey(GUIDEBOOK_FOLDER+id+"/images/"+uniqueObjectKey);
-            ///
-            //System.out.println(request);
-            ///
-//            S3.putObject(request);
-//            String url = S3.getUrl(bucket, uniqueObjectKey).toString();
-//            urls.add(url);
-            ///
-
-
-
-
-
-
-
-                // below can be deleted
-//            S3 = AmazonS3ClientBuilder.standard()
-//                    .withRegion(region)
-//                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
-//                    .build();
-//            String key = UUID.randomUUID() + "-" + file.getOriginalFilename();
-//            PutObjectRequest putRequest = new PutObjectRequest(bucket, key, file.getInputStream(), null).withKey(GUIDEBOOK_FOLDER+id+"/images");
-//            S3.putObject(putRequest);
-//            String url = S3.getUrl(bucket, key).toString();
-//            urls.add(url);
+            uniqueObjectKey = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+            try {
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentType(file.getContentType());
+                metadata.setContentLength(file.getSize());
+                REPO.saveOne(id+"/images/"+uniqueObjectKey, file.getInputStream(), metadata);
+                urls.add(uniqueObjectKey);
+            } catch (IOException e) {
+                throw new RuntimeException("Error uploading file to S3", e);
+            }
         }
         return urls;
     }
     public List<String> retrieveGbImagesFromS3(String id) {
-        ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withBucketName(bucket).withPrefix(GUIDEBOOK_FOLDER+id+"/images");
-        List<S3ObjectSummary> objectSummaries = S3.listObjects(listObjectsRequest).getObjectSummaries();
-        return objectSummaries.stream().map(S3ObjectSummary::getKey).collect(Collectors.toList());
+            return REPO.retrieveObjectURLs(id);
     }
     public void deleteGuidebook(String id) {
-        S3.deleteObject(bucket, GUIDEBOOK_FOLDER+id);
-        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, GUIDEBOOK_FOLDER+id);
-
-        try {
-            S3.deleteObject(deleteObjectRequest);
-            System.out.println("Object deleted successfully.");
-        } catch (SdkClientException e) {
-            System.err.println("Unable to delete object: " + e.getMessage());
-        }
+        REPO.deleteGbInfoNImages(id);
     }
 }

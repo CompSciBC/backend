@@ -12,7 +12,7 @@ public class Guidebook {
     private String propertyBio;
     private Faq[] faq;
     private String[] policies;
-    private String[] propertySpecificQ;
+    private String[] askGuestTheseQuestionsinSurvey;
     private String[] hostRecommended;
     private String[] hostServices;
     private String checkininstr;
