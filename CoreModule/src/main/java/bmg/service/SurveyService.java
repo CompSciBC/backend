@@ -2,7 +2,6 @@ package bmg.service;
 import bmg.model.Survey;
 import bmg.model.Reservation;
 import bmg.repository.SurveyRepository;
-import bmg.service.ReservationService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
