@@ -20,6 +20,12 @@ public class GuidebookService {
 
     private final GuidebookRepository REPO;
 
+    /**
+     * Saves a guidebook dto object to S3 for a particular property with parameter passed propertyID and Guidebook gb
+     * @param id propertyID
+     * @param gb Guidebook JSON file
+     * @return
+     */
     public String saveGbContentToS3(String id, Guidebook gb) {
         try {
             byte[] jsonBytes = new ObjectMapper().writeValueAsBytes(gb);
@@ -31,6 +37,12 @@ public class GuidebookService {
         }
     }
 
+    /**
+     * Retrieves the guidebook content (JSON file) from S3 for a propertyID
+     * @param id propertyID
+     * @return Guidebook object
+     * @throws IOException
+     */
     public Guidebook retrieveGbContentFromS3(String id) throws IOException {
             if (REPO.gbInfoExists(id)) {
                 S3Object response = REPO.getOne(id+"/content");
@@ -41,6 +53,13 @@ public class GuidebookService {
         return null;
     }
 
+    /**
+     *
+     * @param id
+     * @param files
+     * @return
+     * @throws IOException
+     */
     public List<String> saveGbImagesToS3(String id, MultipartFile[] files) throws IOException {
         List<String> urls = new ArrayList<>();
         String uniqueObjectKey;
@@ -61,6 +80,11 @@ public class GuidebookService {
     public List<String> retrieveGbImagesFromS3(String id) {
             return REPO.retrieveObjectURLs(id);
     }
+
+    /**
+     *
+     * @param id
+     */
     public void deleteGuidebook(String id) {
         REPO.deleteGbInfoNImages(id);
     }

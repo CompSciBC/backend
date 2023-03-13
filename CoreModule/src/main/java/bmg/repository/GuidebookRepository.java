@@ -110,7 +110,6 @@ public class GuidebookRepository {
             listObjectsV2Request.setContinuationToken(result.getNextContinuationToken()); // AWS has designated when a query returns a large number of results, only a subset is returned.
                                                                                             // We don't know how many images the host uploaded, so we continue to get the next result set for all images
         } while(result.isTruncated());
-
         return objURLs;
     }
 }

@@ -9,7 +9,7 @@ public class Guidebook {
     private Integer capacity;
     private String pets;
     private String[] amenities;
-    private String propertyBio;
+    private String[] propertyBio;
     private Faq[] faq;
     private String[] policies;
     private String[] askGuestTheseQuestionsinSurvey;
