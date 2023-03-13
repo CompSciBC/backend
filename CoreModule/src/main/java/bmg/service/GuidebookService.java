@@ -54,10 +54,10 @@ public class GuidebookService {
     }
 
     /**
-     *
-     * @param id
-     * @param files
-     * @return
+     * Saves the guidebook image files for a particular property in S3
+     * @param id propertyID
+     * @param files Multiple image files
+     * @return a List of Strings of object keys that have been saved in S3
      * @throws IOException
      */
     public List<String> saveGbImagesToS3(String id, MultipartFile[] files) throws IOException {
@@ -82,8 +82,8 @@ public class GuidebookService {
     }
 
     /**
-     *
-     * @param id
+     * Deletes both the /images and /content contained in S3 for any one guidebook
+     * @param id propertyID
      */
     public void deleteGuidebook(String id) {
         REPO.deleteGbInfoNImages(id);
