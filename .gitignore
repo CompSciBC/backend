@@ -32,6 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-secrets.properties
+*secrets*
 **/.DS_Store
 dst/
