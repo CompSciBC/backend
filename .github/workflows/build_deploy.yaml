@@ -21,9 +21,9 @@ jobs:
 
       - name: import secrets
         run: |
-          echo "${{ secrets.SECRET_PROPERTIES }}" >> secrets.properties
-          cat secrets.properties
-          mv secrets.properties ./ApplicationModule/src/main/resources
+          echo "${{ secrets.SECRET_PROPERTIES_PROD }}" >> secrets-prod.properties
+          cat secrets-prod.properties
+          mv secrets-prod.properties ./ApplicationModule/src/main/resources
 
       - name: run tests & generate jars
         run: |
