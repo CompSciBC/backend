@@ -1,23 +1,26 @@
 package bmg.model;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
+
+import java.util.Date;
+import java.util.Map;
+
 import lombok.Data;
 
-@DynamoDBTable(tableName = "bmg_forecast")
 @Data
 public class Forecast {
-    @DynamoDBHashKey(attributeName = "office")
-    private String office;
-
-    @DynamoDBRangeKey(attributeName="gridX_gridY")
-    private String gridX_gridY;
-
-    @DynamoDBAttribute
-    private String timestamp;
-
-    @DynamoDBAttribute
-    private String forecast_content;
-
+    private String detailedForecast;
+    private Map<String, Object> dewpoint;
+    private String temperatureTrend;
+    private String shortForecast;
+    private String icon;
+    private int number;
+    private String temperatureUnit;
+    private Map<String, Object> probabilityOfPrecipitation;
+    private String name;
+    private int temperature;
+    private Map<String, Object> relativeHumidity;
+    private Date startTime;
+    private String isDaytime;
+    private Date endTime;
+    private String windDirection;
+    private String windSpeed;
 }
