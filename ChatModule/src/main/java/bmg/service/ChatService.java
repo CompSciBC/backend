@@ -94,7 +94,8 @@ public class ChatService {
             result.add(message);
             return result;
         }
-
+//in case of a long chat history; retrieve only two last messages from Group Chat
+        // TODO: Probably, Private Chat can be considered as well.
         if (DBmessageResult.size() >= 2) {
 
             for (int i = 0; i < DBmessageResult.size(); i++) {
