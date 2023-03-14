@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class CoordinatesService {
 
-    @Value("${key.google}")
+    @Value("${key.google-geocoding}")
     private String key;//API key
 
     public Coordinates getCoordinates(String address) throws ExecutionException, InterruptedException {
