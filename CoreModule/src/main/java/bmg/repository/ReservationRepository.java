@@ -198,25 +198,8 @@ public class ReservationRepository {
      * @param reservations A list of reservations
      */
     public void saveAll(List<Reservation> reservations) {
-
-        for (Reservation reservation : reservations) {
-
-            // check if this id already exists in the database
-            List<Reservation> existingPrimary = findAll(reservation.getId(), true);
-
-            if (existingPrimary.size() == 0) {
-                // this is a brand-new reservation; set as primary and put reservation
-                reservation.setIsPrimary(true);
-
-            } else {
-                // id already exists in the database; if this reservation has the same
-                // guest id as the primary, then this is the primary, otherwise, it is not
-                Reservation primary = existingPrimary.get(0);
-                boolean same = primary.getGuestId().equals(reservation.getGuestId());
-                reservation.setIsPrimary(same);
-            }
+        for (Reservation reservation : reservations)
             MAPPER.save(reservation);
-        }
     }
 
     /**

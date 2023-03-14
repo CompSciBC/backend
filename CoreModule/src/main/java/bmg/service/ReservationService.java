@@ -18,6 +18,7 @@ public class ReservationService {
 
     private final ReservationRepository REPO;
     private final QRCodeRepository QR_REPO;
+    private final RandomStringGenerator RSG;
 
     /**
      * Finds the primary reservation with the given id
@@ -38,12 +39,15 @@ public class ReservationService {
      * Finds all reservations with the given id
      *
      * @param id A reservation id
+     * @param nonPrimaryOnly If true, returns only the non-primary reservation entries
      * @return A list of reservations
      */
-    public List<Reservation> findAll(String id) {
+    public List<Reservation> findAll(String id, boolean nonPrimaryOnly) {
         List<Reservation> reservations = REPO.findAll(id, false);
         assertListNotEmpty(id, reservations);
-        return REPO.findAll(id, false);
+        return nonPrimaryOnly
+                ? reservations.stream().filter((r) -> !r.getIsPrimary()).toList()
+                : reservations;
     }
 
     /**
@@ -67,7 +71,31 @@ public class ReservationService {
      * @param reservations A list of reservations
      */
     public void saveAll(List<Reservation> reservations) {
-        REPO.saveAll(reservations);
+        for (Reservation reservation : reservations) {
+            try {
+                // findOne will throw an error if either:
+                //      a) id is null
+                //      b) id does not exist in the database
+                // in either case, this means that the reservation is primary
+                Reservation existingPrimary = findOne(reservation.getId());
+
+                // id already exists in the database; if this reservation has the same
+                // guest id as the primary, then this is the primary, otherwise, it is not
+                boolean same = existingPrimary.getGuestId().equals(reservation.getGuestId());
+                reservation.setIsPrimary(same);
+
+                // this field should not be modified by client, so setting it here to prevent overwrite
+                reservation.setInviteCode(existingPrimary.getInviteCode());
+
+            } catch (Exception e) {
+                // this is the primary (first of its kind)
+                reservation.setIsPrimary(true);
+
+                // generate random 12 character invite code
+                reservation.setInviteCode(RSG.generate(12));
+            }
+            REPO.saveAll(List.of(reservation));
+        }
     }
 
     /**
@@ -79,7 +107,7 @@ public class ReservationService {
     public void updateAll(String id, Map<String, Object> updates) {
 
         // all existing reservations with the given id
-        List<Reservation> reservations = findAll(id);
+        List<Reservation> reservations = findAll(id, false);
 
         // update each reservation
         for (Reservation reservation : reservations) {

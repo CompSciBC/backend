@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 
+import java.util.Arrays;
+
 /**
  * Represents the physical address of a location
  */
@@ -21,11 +23,13 @@ public class Address {
     private String country;
 
     public String getAddressString() {
-        return (line1 != null ? line1 : "") + " "
-                + (line2 != null ? line2 : "") +  " "
-                + (city != null ? city : "") +  " "
-                + (stateProvince != null ? stateProvince : "") +  " "
-                + (postalCode != null ? postalCode : "") +  " "
-                + (country != null ? country : "");
+        String[] parts = new String[]{line1, line2, city, stateProvince, postalCode, country};
+        StringBuilder address = new StringBuilder();
+
+        for (String part : parts) {
+            if (part != null)
+                address.append(address.isEmpty() ? "" : " ").append(part.trim());
+        }
+        return address.toString();
     }
 }
