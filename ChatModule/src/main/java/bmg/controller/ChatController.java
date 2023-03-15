@@ -66,6 +66,14 @@ public class ChatController {
 
     }
 
+    @GetMapping("/load/chat-preview/{reservationId}")
+    public List<Message>retrieveChatPreviewForGuest(
+            @PathVariable(name = "reservationId")String reservationId
+    ){
+        return chatService.loadLatestMessagesByGivenReservationID(reservationId);
+
+    }
+
 
 
 

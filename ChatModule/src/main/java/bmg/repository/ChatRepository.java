@@ -12,19 +12,15 @@ import java.util.Map;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 
 
-
 @Repository
+@RequiredArgsConstructor
 public class ChatRepository {
     private final DynamoDBMapper dynamoDBMapper;
-
-    ChatRepository(DynamoDBMapper dynamoDBMapper){
-        this.dynamoDBMapper = dynamoDBMapper;
-
-    }
 
     /**
      * Saves the given messageDBRecord into PrivateChat table
@@ -67,5 +63,23 @@ public class ChatRepository {
                         .withScanIndexForward(true)
                         .withConsistentRead(false) );
     }
+
+    /**
+     * Retrieve the latest message for the reservation ID and sorted by time
+     */
+    public List<MessageDBRecord> retrieveLatestMessageForGivenReservation(String reservationId) {
+        Map<String, AttributeValue> values = new HashMap<>();
+        values.put(":pk", new AttributeValue().withS(reservationId));
+
+        return dynamoDBMapper.query(
+                MessageDBRecord.class,
+                new DynamoDBQueryExpression <MessageDBRecord>()
+                        .withKeyConditionExpression("ReservationID = :pk")
+                        .withExpressionAttributeValues(values)
+                        .withScanIndexForward(true)
+                        .withConsistentRead(false));
+
+    }
+
 
 }
