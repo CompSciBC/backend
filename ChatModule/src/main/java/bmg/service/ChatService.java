@@ -5,6 +5,7 @@ import bmg.model.MessageDBRecord;
 import bmg.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import bmg.model.Reservation;
 
 import java.util.*;
 
@@ -14,6 +15,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ChatService {
     private final ChatRepository chatRepository;
+    private final ReservationService reservationService;
 
     public void saveChatMessage(Message message) {
         chatRepository.saveMessage(convertMessageToMessageDBRecord(message));
@@ -116,6 +118,48 @@ public class ChatService {
     }
 
 
+    /**
+     * load inbox messages for a user. The final list of Inbox messages are set by ChatID.
+     * Each ChatId is responsible for a conversation. ChatId represents both private and group chats
+     */
+
+    public Map<String, List<Message>> loadInboxMessagesForUser (Reservation.Index index, String userId){
+        Map<String, List<Message>> result = new HashMap<>();
+        List<Reservation> reservationList = reservationService.findAll(index, userId);
+        List<List<String>> chatIdListForAllReservations = new ArrayList<>();
+
+        for (int i = 0; i < reservationList.size(); i++){
+            String reservationId = reservationList.get(i).getId();
+            List<String> chatIdforASingleReservationId = retrieveListOfChatIdForGivenReservationId(reservationId);
+            retrieveMessagesForListOfChatId(chatIdforASingleReservationId, result);
+        }
+        return result;
+    }
+
+    private List<String> retrieveListOfChatIdForGivenReservationId(String reservationId) {
+        List<String> result = new ArrayList<>();
+        List<MessageDBRecord> messageList = chatRepository.retrieveLatestMessageForGivenReservation(reservationId);
+
+        for (int i = 0; i < messageList.size(); i++){
+            String value = messageList.get(i).getChatId();
+            result.add(value);
+        }
+        return result;
+    }
+
+    private void retrieveMessagesForListOfChatId (List<String> chatId, Map<String, List<Message>> destination){
+
+        for (int i = 0; i < chatId.size(); i++){
+            String key = chatId.get(i);
+            List<MessageDBRecord> rawMessage = chatRepository.retrieveMessageForGivenChatId(key);
+            List<Message> listMessageForEachChatId = new ArrayList<>();
+            for (int index = 0; index < rawMessage.size(); index++){
+                Message messageValue = convertMessageDBRecordToMessage(rawMessage.get(index));
+                listMessageForEachChatId.add(messageValue);
+            }
+            destination.put(key, listMessageForEachChatId);
+        }
+    }
 
 
     private MessageDBRecord convertMessageToMessageDBRecord (Message message){
@@ -144,8 +188,8 @@ public class ChatService {
             message.setReceiverName(receiverName);
         }
         return message;
-
     }
+
 
 
 

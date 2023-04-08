@@ -5,6 +5,7 @@ import bmg.model.MessageDBRecord;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ChatRepository {
     private final DynamoDBMapper dynamoDBMapper;
+    private final ReservationRepository reservationRepository;
 
     /**
      * Saves the given messageDBRecord into PrivateChat table
@@ -80,6 +82,10 @@ public class ChatRepository {
                         .withConsistentRead(false));
 
     }
+
+
+
+
 
 
 }

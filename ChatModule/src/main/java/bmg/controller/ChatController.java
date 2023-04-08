@@ -1,6 +1,7 @@
 package bmg.controller;
 
 
+import bmg.model.Reservation;
 import bmg.service.ChatService;
 import bmg.model.Message;
 import org.springframework.stereotype.Controller;
@@ -71,6 +72,14 @@ public class ChatController {
             @PathVariable(name = "reservationId")String reservationId
     ){
         return chatService.loadLatestMessagesByGivenReservationID(reservationId);
+
+    }
+    @GetMapping("/load/inbox/{userId}/{userRole}")
+    public Map<String, List<Message>> retrieveMessageInbox(
+            @PathVariable(name = "userId")String userID,
+            @PathVariable (name = "userRole") Reservation.Index index
+    ){
+        return chatService.loadInboxMessagesForUser(index, userID);
 
     }
 
