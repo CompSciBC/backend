@@ -4,6 +4,7 @@ import bmg.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.List;
 
@@ -30,9 +31,11 @@ public class SurveyController extends Controller<Survey> {
     /**
      * Finds all surveys submitted for a particular host, reservation, or property
      * @param resId A reservation id
-     * @return 
+     * @param id The id of a host, reservation, or property
+     * @return A response entity containing a list of surveys
      */
     @GetMapping("")
+    @Operation(summary = "Get list of surveys by index")
     public ResponseEntity<Response<Survey>> findSurveysByIndex(@RequestParam(required = true) String index, @RequestParam(required = true) String id) {
         List<Survey> surveys = surveyService.findSurveysByIndex(index, id);
         return responseCodeOk(surveys); 
