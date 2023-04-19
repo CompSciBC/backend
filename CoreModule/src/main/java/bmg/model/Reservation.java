@@ -76,4 +76,7 @@ public class Reservation {
 
     @DynamoDBIndexHashKey(attributeName = "inviteCode", globalSecondaryIndexName = INVITE_CODE_INDEX)
     private String inviteCode;
+
+    @DynamoDBAttribute(attributeName = "checkedIn")
+    private Boolean checkedIn;
 }
