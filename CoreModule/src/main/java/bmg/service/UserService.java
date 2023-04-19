@@ -20,11 +20,11 @@ public class UserService {
      */
     public List<User> findUsersByIndex(String index, String id) {
         List<User> users = new ArrayList<User>();
-        if (index.equals("userID")){
+        if (index.equalsIgnoreCase("userid")){
             users = USER_REPO.findUsersByUserId(id);
-        } else if (index.equals("email")){
+        } else if (index.equalsIgnoreCase("email")){
             users = USER_REPO.findUsersByIndex(User.Index.EMAIL, id);
-        } else if (index.equals("username")){
+        } else if (index.equalsIgnoreCase("username")){
             users = USER_REPO.findUsersByIndex(User.Index.USERNAME, id);
         }
         return users;

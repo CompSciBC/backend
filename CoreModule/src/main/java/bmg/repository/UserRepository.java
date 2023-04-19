@@ -38,8 +38,8 @@ public class UserRepository {
     }
 
     /**
-     * Finds users by username
-     * @param username
+     * Finds users by userId
+     * @param userId
      * @return List of User Objects
      */
      public List<User> findUsersByUserId(String userId) {
