@@ -42,7 +42,16 @@ public class ChatController {
     }
 
     @MessageMapping("/group-message")
-    public Message receiveGroupMessage (@Payload Message message){
+    public Message receiveGroupMessageWebSocket(@Payload Message message) {
+        return receiveGroupMessage(message);
+    }
+
+    @PostMapping("/group-message")
+    public Message receiveGroupMessageHttp(@RequestBody Message message) {
+        return receiveGroupMessage(message);
+    }
+
+    private Message receiveGroupMessage (Message message){
         Calendar calendar = Calendar.getInstance();
         Date currentTime = calendar.getTime();
         message.setTimestamp(currentTime.getTime());
