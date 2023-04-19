@@ -1,12 +1,10 @@
 package bmg.model;
 
-import bmg.converter.LocalDateTimeConverter;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @DynamoDBTable(tableName = "users")
 @Data
@@ -35,8 +33,7 @@ public class User {
     private String firstName;
 
     @DynamoDBAttribute(attributeName = "joinedOn")
-    @DynamoDBTypeConverted(converter = LocalDateTimeConverter.class)
-    private LocalDateTime joinedOn;
+    private String joinedOn;
 
     @DynamoDBAttribute(attributeName = "lastName")
     private String lastName;
