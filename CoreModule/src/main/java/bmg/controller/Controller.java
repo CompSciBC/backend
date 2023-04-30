@@ -2,6 +2,7 @@ package bmg.controller;
 
 import com.amazonaws.services.dynamodbv2.model.TransactionCanceledException;
 import jakarta.validation.ValidationException;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -19,6 +20,7 @@ import java.util.NoSuchElementException;
  *
  * @param <T> The controlled data type
  */
+@Log4j2
 public abstract class Controller<T> {
 
     /**
@@ -29,6 +31,7 @@ public abstract class Controller<T> {
      */
     @ExceptionHandler({NoSuchElementException.class})
     private ResponseEntity<Response<T>> handleException(NoSuchElementException e) {
+        logError(e);
         return responseCodeNotFound(e.getMessage());
     }
 
@@ -40,6 +43,7 @@ public abstract class Controller<T> {
      */
     @ExceptionHandler({HttpMessageNotReadableException.class})
     private ResponseEntity<Response<T>> handleException(HttpMessageNotReadableException e) {
+        logError(e);
         return responseCodeBadRequest(e.getMessage());
     }
 
@@ -51,6 +55,7 @@ public abstract class Controller<T> {
      */
     @ExceptionHandler({ValidationException.class})
     private ResponseEntity<Response<T>> handleException(ValidationException e) {
+        logError(e);
         return responseCodeBadRequest(e.getMessage());
     }
 
@@ -62,6 +67,7 @@ public abstract class Controller<T> {
      */
     @ExceptionHandler({MethodArgumentNotValidException.class})
     private ResponseEntity<Response<T>> handleException(MethodArgumentNotValidException e) {
+        logError(e);
         return responseCodeBadRequest(e.getMessage());
     }
 
@@ -73,6 +79,7 @@ public abstract class Controller<T> {
      */
     @ExceptionHandler({IllegalArgumentException.class})
     private ResponseEntity<Response<T>> handleException(IllegalArgumentException e) {
+        logError(e);
         return responseCodeBadRequest(e.getMessage());
     }
 
@@ -84,6 +91,7 @@ public abstract class Controller<T> {
      */
     @ExceptionHandler({MissingServletRequestParameterException.class})
     private ResponseEntity<Response<T>> handleException(MissingServletRequestParameterException e) {
+        logError(e);
         return responseCodeBadRequest(e.getMessage());
     }
 
@@ -95,6 +103,7 @@ public abstract class Controller<T> {
      */
     @ExceptionHandler({TransactionCanceledException.class})
     private ResponseEntity<Response<T>> handleException(TransactionCanceledException e) {
+        logError(e);
         return responseCodeConflict(e.getMessage());
     }
 
@@ -208,5 +217,14 @@ public abstract class Controller<T> {
                 .data(data)
                 .path(ServletUriComponentsBuilder.fromCurrentRequest().toUriString())
                 .build();
+    }
+
+    /**
+     * Logs the given exception
+     *
+     * @param e An exception
+     */
+    private void logError(Exception e) {
+        log.error("{}: {}", e.getClass().getSimpleName(), e.getMessage());
     }
 }

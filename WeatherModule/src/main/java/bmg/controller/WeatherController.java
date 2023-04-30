@@ -2,6 +2,7 @@ package bmg.controller;
 import bmg.model.Forecast;
 import bmg.service.NwsWeatherService;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/weather")
+@Log4j2
 public class WeatherController {
     private final NwsWeatherService nwsWeatherService;
 
@@ -30,6 +32,7 @@ public class WeatherController {
     @GetMapping(value = {""})
     @Operation(summary = "Get the weather forecast for an address")
     public List<Forecast> getWeatherForecast(@RequestParam(name = "address") String address) throws InterruptedException, ExecutionException, JsonMappingException, JsonProcessingException {
+        log.info("Get weather at address={}", address);
         return nwsWeatherService.getTenDayForecast(address);
     }
 }
