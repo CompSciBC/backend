@@ -11,13 +11,15 @@ import lombok.RequiredArgsConstructor;
 public class User {
     public static final String USERNAME_INDEX = "username-index";
     public static final String EMAIL_INDEX = "email-index";
+    public static final String ROLE_INDEX = "role-index";
 
     // available indexes in the user table
     @RequiredArgsConstructor
     @Getter
     public enum Index {
         USERNAME (USERNAME_INDEX, "username"),
-        EMAIL (EMAIL_INDEX, "email");
+        EMAIL (EMAIL_INDEX, "email"),
+        ROLE (ROLE_INDEX, "role");
 
         private final String NAME;
         private final String KEY;
@@ -41,7 +43,7 @@ public class User {
     @DynamoDBAttribute(attributeName = "phone")
     private String phone;
 
-    @DynamoDBAttribute(attributeName = "role")
+    @DynamoDBIndexHashKey(attributeName = "role", globalSecondaryIndexName = ROLE_INDEX)
     private String role;
 
     @DynamoDBIndexHashKey(attributeName = "username", globalSecondaryIndexName = USERNAME_INDEX)
