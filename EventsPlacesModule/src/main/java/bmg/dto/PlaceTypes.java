@@ -1,1 +1,4 @@
-// TODO: migrate code from bmg repo
+package bmg.dto;
+
+public class PlaceTypes {
+}
