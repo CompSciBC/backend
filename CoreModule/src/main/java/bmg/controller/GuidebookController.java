@@ -3,6 +3,7 @@ package bmg.controller;
 import bmg.dto.Guidebook;
 import bmg.service.GuidebookService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +15,7 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/api/guidebook")
 @RequiredArgsConstructor
+@Log4j2
 public class GuidebookController extends Controller<Guidebook> {
 
     private final GuidebookService SVC;
@@ -26,6 +28,9 @@ public class GuidebookController extends Controller<Guidebook> {
      */
     @PostMapping("/{id}/content")
     public String saveGuidebookContent(@PathVariable(name = "id") String id, @RequestBody Guidebook gb) {
+        log.info("Save guidebook for propertyId={}:", id);
+        log.info("\tgb={}", gb);
+
         return SVC.saveGbContentToS3(id, gb);
     }
 
@@ -37,6 +42,7 @@ public class GuidebookController extends Controller<Guidebook> {
      */
     @GetMapping("/{id}/content")
     public Guidebook retrieveGuidebookContent(@PathVariable(name = "id") String id) throws IOException {
+        log.info("Get guidebook for propertyId={}", id);
         return SVC.retrieveGbContentFromS3(id);
     }
 
@@ -51,6 +57,12 @@ public class GuidebookController extends Controller<Guidebook> {
      */
     @PostMapping("/{id}/images")
     public List<String> uploadGuidebookImages(@PathVariable(name = "id") String id, @RequestParam("files") MultipartFile[] files) throws IOException {
+        log.info("Upload guidebook images for propertyId={}:", id);
+        log.info("\tFiles:");
+
+        for (MultipartFile file : files)
+            log.info("\t\tsize={}, content-type={}, name={}", file.getSize(), file.getContentType(), file.getOriginalFilename());
+
         return SVC.saveGbImagesToS3(id, files);
     }
 
@@ -61,6 +73,7 @@ public class GuidebookController extends Controller<Guidebook> {
      */
     @GetMapping("/{id}/images")
     public List<String> getImagesFromS3(@PathVariable(name = "id") String id) {
+        log.info("Get guidebook images for propertyId={}", id);
         return SVC.retrieveGbImagesFromS3(id);
     }
 
@@ -70,6 +83,7 @@ public class GuidebookController extends Controller<Guidebook> {
      */
     @GetMapping("/{id}/delete")
     public void deleteGuidebook(@PathVariable(name = "id") String id) {
+        log.info("Delete guidebook for propertyId={}", id);
         SVC.deleteGuidebook(id);
     }
 }

@@ -3,6 +3,7 @@ package bmg.controller;
 import bmg.model.Property;
 import bmg.service.PropertyService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 @CrossOrigin
 @RequestMapping("/api/properties")
 @RequiredArgsConstructor
+@Log4j2
 public class PropertyController extends Controller<Property> {
 
     private final PropertyService SVC;
@@ -28,6 +30,8 @@ public class PropertyController extends Controller<Property> {
      */
     @GetMapping("/{id}")
     public ResponseEntity<Response<Property>> getOne(@PathVariable(name = "id") String id) {
+        log.info("Get property with id={}", id);
+
         Property property = SVC.findOne(id);
         return responseCodeOk(List.of(property));
     }
@@ -40,6 +44,8 @@ public class PropertyController extends Controller<Property> {
      */
     @GetMapping("")
     public ResponseEntity<Response<Property>> getAll(@RequestParam(name = "hostId") String hostId) {
+        log.info("Get all properties with hostId={}", hostId);
+
         List<Property> property = SVC.findAll(hostId);
         return responseCodeOk(property);
     }
@@ -52,6 +58,9 @@ public class PropertyController extends Controller<Property> {
      */
     @PostMapping("")
     public ResponseEntity<Response<Property>> saveAll(@RequestBody List<Property> properties) {
+        log.info("Save properties:");
+        properties.forEach((p) -> log.info("\t{}", p));
+
         SVC.saveAll(properties);
 
         String location = properties.size() == 1
@@ -71,6 +80,9 @@ public class PropertyController extends Controller<Property> {
     @PatchMapping("/{id}")
     public ResponseEntity<Response<Property>> updateOne(@PathVariable(name = "id") String id,
                                                         @RequestBody Map<String, Object> updates) {
+        log.info("Update property with id={}:", id);
+        updates.forEach((key, value) -> log.info("\t{}={}", key, value));
+
         SVC.updateOne(id, updates);
         Property property = SVC.findOne(id);
         return responseCodeOk(List.of(property));
@@ -84,6 +96,8 @@ public class PropertyController extends Controller<Property> {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Response<Property>> deleteOne(@PathVariable(name = "id") String id) {
+        log.info("Delete property with id={}", id);
+
         SVC.deleteAll(List.of(id));
         return responseCodeNoContent();
     }
@@ -96,6 +110,9 @@ public class PropertyController extends Controller<Property> {
      */
     @DeleteMapping("")
     public ResponseEntity<Response<Property>> deleteAll(@RequestBody List<String> ids) {
+        log.info("Delete properties:");
+        ids.forEach((i) -> log.info("\t{}", i));
+
         SVC.deleteAll(ids);
         return responseCodeNoContent();
     }
