@@ -3,6 +3,7 @@ package bmg.controller;
 import bmg.model.Reservation;
 import bmg.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 @CrossOrigin
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
+@Log4j2
 public class ReservationController extends Controller<Reservation> {
 
     private final ReservationService SVC;
@@ -31,6 +33,8 @@ public class ReservationController extends Controller<Reservation> {
     public ResponseEntity<Response<Reservation>> getAll(
             @RequestParam(name = "index") Reservation.Index index,
             @RequestParam(name = "id") String id) {
+
+        log.info("Get all reservations with {}={}", index.getKEY(), id);
 
         List<Reservation> reservations = SVC.findAll(index, id);
         return responseCodeOk(reservations);
@@ -48,6 +52,8 @@ public class ReservationController extends Controller<Reservation> {
     public ResponseEntity<Response<Reservation>> getAll(
             @PathVariable(name = "id") String id,
             @RequestParam(name = "primary", required = false) Boolean primary) {
+
+        log.info("Get all {}primary reservations with id={}", primary != null && primary ? "" : "non-", id);
 
         List<Reservation> reservations;
 
@@ -69,6 +75,9 @@ public class ReservationController extends Controller<Reservation> {
      */
     @PostMapping("")
     public ResponseEntity<Response<Reservation>> saveAll(@RequestBody List<Reservation> reservations) {
+        log.info("Save reservations:");
+        reservations.forEach((r) -> log.info("\t{}", r));
+
         SVC.saveAll(reservations);
 
         String location = reservations.size() == 1
@@ -88,6 +97,10 @@ public class ReservationController extends Controller<Reservation> {
     @PatchMapping("/{id}")
     public ResponseEntity<Response<Reservation>> updateAll(@PathVariable(name = "id") String id,
                                                            @RequestBody Map<String, Object> updates) {
+
+        log.info("Update all reservations with id={}:", id);
+        updates.forEach((key, value) -> log.info("\t{}={}", key, value));
+
         SVC.updateAll(id, updates);
         Reservation reservation = SVC.findOne(id);
         return responseCodeOk(List.of(reservation));
@@ -101,6 +114,8 @@ public class ReservationController extends Controller<Reservation> {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Response<Reservation>> deleteAll(@PathVariable(name = "id") String id) {
+        log.info("Delete all reservations with id={}", id);
+
         SVC.deleteAll(id);
         return responseCodeNoContent();
     }

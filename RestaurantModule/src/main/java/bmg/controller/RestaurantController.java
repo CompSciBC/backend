@@ -5,6 +5,7 @@ import bmg.dto.Restaurant;
 import bmg.dto.RestaurantFilters;
 import bmg.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/api/restaurants")
 @RequiredArgsConstructor
+@Log4j2
 public class RestaurantController {
 
     private final RestaurantService SVC;
@@ -55,33 +57,60 @@ public class RestaurantController {
             @RequestParam(required = false) Integer numResults
     ) {
 
-        Address address = new Address(line1, line2, city, stateProvince, postalCode, country);
-        verifyAddressNotNull(address);
-
-        RestaurantFilters filters =
-                RestaurantFilters
-                        .builder()
-                        .address(address)
-                        .radius(radius)
-                        .keywords(keywords)
-                        .maxPrice(maxPrice)
-                        .openNow(openNow)
-                        .numResults(numResults)
-                        .build();
+        log.info("Get restaurants:");
+        log.info("\tAddress:");
+        log.info("\t\tline1={}", line1);
+        log.info("\t\tline2={}", line2);
+        log.info("\t\tcity={}", city);
+        log.info("\t\tstateProvince={}", stateProvince);
+        log.info("\t\tpostalCode={}", postalCode);
+        log.info("\t\tcountry={}", country);
+        log.info("\tradius={}", radius);
+        log.info("\tkeywords:");
+        if (keywords != null) {
+            for (String keyword : keywords)
+                log.info("\t\t{}", keyword);
+        }
+        log.info("\tmaxPrice={}", maxPrice);
+        log.info("\topenNow={}", openNow);
+        log.info("\tnumResults={}", numResults);
 
         List<Restaurant> data;
         HttpStatus status;
         String message;
 
-        try {
-            data = SVC.getRestaurants(filters);
-            status = HttpStatus.OK;
-            message = status.name();
+        Address address = new Address(line1, line2, city, stateProvince, postalCode, country);
 
-        } catch (Exception e) {
+        if (address.getAddressString().isBlank()) {
+            log.error("No address fields present.");
+
             status = HttpStatus.INTERNAL_SERVER_ERROR;
-            message = e.getMessage();
+            message = "At least one address field is required.";
             data = new ArrayList<>();
+
+        } else {
+            RestaurantFilters filters =
+                    RestaurantFilters
+                            .builder()
+                            .address(address)
+                            .radius(radius)
+                            .keywords(keywords)
+                            .maxPrice(maxPrice)
+                            .openNow(openNow)
+                            .numResults(numResults)
+                            .build();
+
+            try {
+                data = SVC.getRestaurants(filters);
+                status = HttpStatus.OK;
+                message = status.name();
+
+            } catch (Exception e) {
+                log.error("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+                message = e.getMessage();
+                data = new ArrayList<>();
+            }
         }
 
         Response2<List<Restaurant>> response = new Response2<>();
@@ -91,16 +120,5 @@ public class RestaurantController {
         response.setPath(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
 
         return ResponseEntity.status(status).body(response);
-    }
-
-    /**
-     * Checks that at least one address field is not blank
-     *
-     * @param address An address to verify
-     * @throws IllegalArgumentException If all address fields are blank
-     */
-    private void verifyAddressNotNull(Address address) throws IllegalArgumentException {
-        if (address.getAddressString().isBlank())
-            throw new IllegalArgumentException("At least one address field is required.");
     }
 }

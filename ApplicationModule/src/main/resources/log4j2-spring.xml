@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="PID">????</Property>
+        <Property name="LOG_EXCEPTION_CONVERSION_WORD">%xwEx</Property>
+        <Property name="LOG_LEVEL_PATTERN">%5p</Property>
+        <Property name="LOG_DATE_FORMAT_PATTERN">yyyy-MM-dd HH:mm:ss.SSS</Property>
+        <Property name="CONSOLE_LOG_PATTERN">%clr{%d{${LOG_DATE_FORMAT_PATTERN}}}{faint} %clr{${LOG_LEVEL_PATTERN}} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+        <Property name="FILE_LOG_PATTERN">%d{${LOG_DATE_FORMAT_PATTERN}} ${LOG_LEVEL_PATTERN} ${sys:PID} --- [%t] %-40.40c{1.} : %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}" />
+        </Console>
+
+        <!-- only log to file in dev -->
+        <springProfile name="dev">
+            <RollingFile name="rolling-file-general"
+                         fileName="./.logs/general.log"
+                         filePattern="./.logs/$${date:yyyy-MM}/general-%d{-dd-MMMM-yyyy}-%i.log.gz">
+                <PatternLayout pattern="${sys:FILE_LOG_PATTERN}" />
+                <Policies>
+                    <!-- rollover on startup, daily and when the file reaches 10 MegaBytes -->
+                    <OnStartupTriggeringPolicy />
+                    <SizeBasedTriggeringPolicy size="10 MB" />
+                    <TimeBasedTriggeringPolicy />
+                </Policies>
+            </RollingFile>
+
+            <RollingFile name="rolling-file-events"
+                         fileName="./.logs/events.log"
+                         filePattern="./.logs/$${date:yyyy-MM}/events-%d{-dd-MMMM-yyyy}-%i.log.gz">
+                <PatternLayout pattern="${sys:FILE_LOG_PATTERN}" />
+                <MarkerFilter marker="EVENT" onMatch="ACCEPT" onMismatch="DENY"/>
+                <Policies>
+                    <!-- rollover on startup, daily and when the file reaches 10 MegaBytes -->
+                    <OnStartupTriggeringPolicy />
+                    <SizeBasedTriggeringPolicy size="10 MB" />
+                    <TimeBasedTriggeringPolicy />
+                </Policies>
+            </RollingFile>
+
+            <RollingFile name="rolling-file-errors"
+                         fileName="./.logs/errors.log"
+                         filePattern="./.logs/$${date:yyyy-MM}/errors-%d{-dd-MMMM-yyyy}-%i.log.gz">
+                <PatternLayout pattern="${sys:FILE_LOG_PATTERN}" />
+                <MarkerFilter marker="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+                <Policies>
+                    <!-- rollover on startup, daily and when the file reaches 10 MegaBytes -->
+                    <OnStartupTriggeringPolicy />
+                    <SizeBasedTriggeringPolicy size="10 MB" />
+                    <TimeBasedTriggeringPolicy />
+                </Policies>
+            </RollingFile>
+        </springProfile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="console" />
+            <!-- only log to file in dev -->
+            <springProfile name="dev">
+                <AppenderRef ref="rolling-file-general" />
+                <AppenderRef ref="rolling-file-events" />
+                <AppenderRef ref="rolling-file-errors" />
+            </springProfile>
+        </Root>
+    </Loggers>
+
+</Configuration>
