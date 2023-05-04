@@ -26,13 +26,5 @@ public class UserService {
             case "role" -> USER_REPO.findUsersByRole(id);
             default -> throw new IllegalArgumentException("Index=" + index + " is not valid");
         };
-        // if (index.equalsIgnoreCase("userid")){
-        //     users = USER_REPO.findUsersByUserId(id);
-        // } else if (index.equalsIgnoreCase("email")){
-        //     users = USER_REPO.findUsersByIndex(User.Index.EMAIL, id);
-        // } else if (index.equalsIgnoreCase("username")){
-        //     users = USER_REPO.findUsersByIndex(User.Index.USERNAME, id);
-        // } 
-        // return users;
     }
 }
