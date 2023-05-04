@@ -1,6 +1,7 @@
 package bmg.model;
 
 import bmg.converter.LocalDateTimeConverter;
+import bmg.converter.PropertyConverter;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import lombok.Data;
 import lombok.Getter;
@@ -79,4 +80,8 @@ public class Reservation {
 
     @DynamoDBAttribute(attributeName = "checkedIn")
     private Boolean checkedIn;
+
+    @DynamoDBAttribute(attributeName = "property")
+    @DynamoDBTypeConverted(converter = PropertyConverter.class)
+    private Property property;
 }
