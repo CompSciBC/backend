@@ -122,6 +122,7 @@ public class ReservationService {
                     case "checkin" -> reservation.setCheckIn(LocalDateTime.parse((String) value));
                     case "checkout" -> reservation.setCheckOut(LocalDateTime.parse((String) value));
                     case "reasonforstay" -> reservation.setReasonForStay((String) value);
+                    case "checkedin" -> reservation.setCheckedIn((Boolean) value);
                     default -> throw new IllegalArgumentException(
                             "Attribute="+attribute+" is not applicable or cannot be modified.");
                 }

@@ -1,11 +1,10 @@
 package bmg.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
-
-import java.util.Arrays;
 
 /**
  * Represents the physical address of a location
@@ -22,6 +21,7 @@ public class Address {
     private String postalCode;
     private String country;
 
+    @JsonIgnore
     public String getAddressString() {
         String[] parts = new String[]{line1, line2, city, stateProvince, postalCode, country};
         StringBuilder address = new StringBuilder();
