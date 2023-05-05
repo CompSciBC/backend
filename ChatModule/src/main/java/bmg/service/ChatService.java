@@ -6,6 +6,7 @@ import bmg.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import bmg.model.Reservation;
+import bmg.model.InboxDBRecord;
 
 import java.util.*;
 
@@ -17,9 +18,15 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final ReservationService reservationService;
 
+    //save a message in Chat table
     public void saveChatMessage(Message message) {
-        chatRepository.saveMessage(convertMessageToMessageDBRecord(message));
+        chatRepository.saveMessageChat(convertMessageToMessageDBRecord(message));
     }
+
+    public void saveChatMessageInbox(Message message) {
+        chatRepository.saveMessageInbox(convertMessageToInboxDBRecord(message));
+    }
+
 
     /**
      * load chat by a given reservationId. Host perspective
@@ -123,43 +130,52 @@ public class ChatService {
      * Each ChatId is responsible for a conversation. ChatId represents both private and group chats
      */
 
-    public Map<String, List<Message>> loadInboxMessagesForUser (Reservation.Index index, String userId){
+    public Map<String, List<Message>> loadInboxMessagesForUser (String userId){
         Map<String, List<Message>> result = new HashMap<>();
-        List<Reservation> reservationList = reservationService.findAll(index, userId);
-        List<List<String>> chatIdListForAllReservations = new ArrayList<>();
+        List<InboxDBRecord> listInboxDBRecord = chatRepository.retrieveMessageForGivenUserId(userId);
 
-        for (int i = 0; i < reservationList.size(); i++){
-            String reservationId = reservationList.get(i).getId();
-            List<String> chatIdforASingleReservationId = retrieveListOfChatIdForGivenReservationId(reservationId);
-            retrieveMessagesForListOfChatId(chatIdforASingleReservationId, result);
-        }
-        return result;
-    }
 
-    private List<String> retrieveListOfChatIdForGivenReservationId(String reservationId) {
-        List<String> result = new ArrayList<>();
-        List<MessageDBRecord> messageList = chatRepository.retrieveLatestMessageForGivenReservation(reservationId);
+        for (int i = 0; i < listInboxDBRecord.size(); i++){
+            Message message = convertInboxDBRecordToMessage(listInboxDBRecord.get(i));
+            String chatId = listInboxDBRecord.get(i).getChatId();
 
-        for (int i = 0; i < messageList.size(); i++){
-            String value = messageList.get(i).getChatId();
-            result.add(value);
-        }
-        return result;
-    }
-
-    private void retrieveMessagesForListOfChatId (List<String> chatId, Map<String, List<Message>> destination){
-
-        for (int i = 0; i < chatId.size(); i++){
-            String key = chatId.get(i);
-            List<MessageDBRecord> rawMessage = chatRepository.retrieveMessageForGivenChatId(key);
-            List<Message> listMessageForEachChatId = new ArrayList<>();
-            for (int index = 0; index < rawMessage.size(); index++){
-                Message messageValue = convertMessageDBRecordToMessage(rawMessage.get(index));
-                listMessageForEachChatId.add(messageValue);
+            if (result.containsKey(chatId)){
+                result.get(chatId).add(message);
             }
-            destination.put(key, listMessageForEachChatId);
+            else {
+                List<Message> messageList = new ArrayList<>();
+                messageList.add(message);
+                result.put(chatId, messageList);
+            }
+
         }
+        return result;
     }
+
+//    private List<String> retrieveListOfChatIdForGivenReservationId(String reservationId) {
+//        List<String> result = new ArrayList<>();
+//        List<MessageDBRecord> messageList = chatRepository.retrieveLatestMessageForGivenReservation(reservationId);
+//
+//        for (int i = 0; i < messageList.size(); i++){
+//            String value = messageList.get(i).getChatId();
+//            result.add(value);
+//        }
+//        return result;
+//    }
+//
+//    private void retrieveMessagesForListOfChatId (List<String> chatId, Map<String, List<Message>> destination){
+//
+//        for (int i = 0; i < chatId.size(); i++){
+//            String key = chatId.get(i);
+//            List<MessageDBRecord> rawMessage = chatRepository.retrieveMessageForGivenChatId(key);
+//            List<Message> listMessageForEachChatId = new ArrayList<>();
+//            for (int index = 0; index < rawMessage.size(); index++){
+//                Message messageValue = convertMessageDBRecordToMessage(rawMessage.get(index));
+//                listMessageForEachChatId.add(messageValue);
+//            }
+//            destination.put(key, listMessageForEachChatId);
+//        }
+//    }
 
 
     private MessageDBRecord convertMessageToMessageDBRecord (Message message){
@@ -189,6 +205,36 @@ public class ChatService {
         }
         return message;
     }
+
+    private InboxDBRecord convertMessageToInboxDBRecord (Message message){
+        InboxDBRecord record = new InboxDBRecord();
+        record.setChatId(message.getChatId());
+        record.setReservationId(message.getReservationId());
+        record.setSenderName(message.getSenderName());
+        record.setMessage(message.getMessage());
+        record.setTimestamp(message.getTimestamp());
+        record.setUserId(message.getUserId());
+
+        return record;
+    }
+
+    private Message convertInboxDBRecordToMessage (InboxDBRecord record){
+        Message message = new Message();
+        message.setMessage(record.getMessage());
+        message.setTimestamp(record.getTimestamp());
+        message.setSenderName(record.getSenderName());
+        message.setReservationId(record.getReservationId());
+        message.setReceiverName(null);
+        message.setChatId(record.getChatId());
+
+        if (!record.getReservationId().equals(record.getChatId()) ){
+            String [] arrayToSplit = record.getChatId().split("_");
+            String receiverName = arrayToSplit[1];
+            message.setReceiverName(receiverName);
+        }
+        return message;
+    }
+
 
 
 

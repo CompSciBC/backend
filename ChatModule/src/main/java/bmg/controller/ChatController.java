@@ -35,6 +35,7 @@ public class ChatController {
         message.setTimestamp(currentTime.getTime());
         this.messages.add(message);
         this.chatService.saveChatMessage(message);
+        this.chatService.saveChatMessageInbox(message);
 
         String destination = "/private/" + message.getReservationId();
         simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destination, message);
@@ -57,7 +58,22 @@ public class ChatController {
         message.setTimestamp(currentTime.getTime());
         this.messages.add(message);
         this.chatService.saveChatMessage(message);
+        this.chatService.saveChatMessageInbox(message);
         simpMessagingTemplate.convertAndSend("/group/" + message.getReservationId(), message);
+        return message;
+    }
+
+    @MessageMapping("/inbox-message")
+    public Message receiveInboxMessage (@Payload Message message){
+        Calendar calendar = Calendar.getInstance();
+        Date currentTime = calendar.getTime();
+        message.setTimestamp(currentTime.getTime());
+        this.messages.add(message);
+        this.chatService.saveChatMessage(message);
+        this.chatService.saveChatMessageInbox(message);
+
+        String destination = "/inbox/" + message.getChatId();
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destination, message);
         return message;
     }
     @GetMapping("/load/host/{reservationId}")
@@ -83,12 +99,11 @@ public class ChatController {
         return chatService.loadLatestMessagesByGivenReservationID(reservationId);
 
     }
-    @GetMapping("/load/inbox/{userId}/{userRole}")
+    @GetMapping("/load/inbox/{userId}")
     public Map<String, List<Message>> retrieveMessageInbox(
-            @PathVariable(name = "userId")String userID,
-            @PathVariable (name = "userRole") Reservation.Index index
+            @PathVariable(name = "userId")String userID
     ){
-        return chatService.loadInboxMessagesForUser(index, userID);
+        return chatService.loadInboxMessagesForUser(userID);
 
     }
 

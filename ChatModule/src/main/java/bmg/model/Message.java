@@ -18,6 +18,7 @@ public class Message {
     private String receiverName;
     private String message;
     private String chatId;
+    private String userId;
 
 }
 
