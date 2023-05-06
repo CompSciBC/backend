@@ -13,4 +13,5 @@ public class Place {
     private Integer priceLvl;
     private Boolean openNow;
     private String placeID;
+    private String userPhotoReference;
 }

@@ -16,6 +16,7 @@ public class PlaceDeserializer extends StdDeserializer<Place> {
     @Override
     public Place deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
         JsonNode node = p.getCodec().readTree(p);
+        JsonNode typesNode = p.getCodec().readTree(p);
 
         return Place.builder()
                 .name(node.at("/name").asText())
@@ -28,8 +29,10 @@ public class PlaceDeserializer extends StdDeserializer<Place> {
                 .priceLvl(node.at("/price_level").asInt())
                 .openNow(node.at("/opening_hours/open_now").asBoolean())
                 .placeID(node.at("/place_id").asText())
+                .userPhotoReference(node.at("/photos/0/photo_reference").asText())
                 .build();
     }
+
 
     protected PlaceDeserializer() {
         super(Place.class);

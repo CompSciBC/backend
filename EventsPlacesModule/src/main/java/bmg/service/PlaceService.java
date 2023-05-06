@@ -25,6 +25,8 @@ public class PlaceService {
 
     @Value("${key.google}")
     private String googlekey;
+    @Value("${api.nearbySearch}")
+    private String googlePlacesAPIendpoint;
 
     private final CoordinatesService CS;
 
@@ -42,7 +44,7 @@ public class PlaceService {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(String.format(
-                        "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%s,%s&radius=500&type=attraction&key=" + googlekey, c.getLatitude(), c.getLongitude())))
+                        googlePlacesAPIendpoint + "?location=%s,%s&radius=500&type=attraction&key=" + googlekey, c.getLatitude(), c.getLongitude())))
                 .build();
 
         String response = client
@@ -53,7 +55,7 @@ public class PlaceService {
     }
 
     /**
-     * Converts GoogleMaps API Nearby Search response to a List of Places
+     * Converts GooglePlaces API Nearby Search response to a List of Places
      *
      * @param response The response from Google Places API (NearbySearch)
      * @return A List of Places
