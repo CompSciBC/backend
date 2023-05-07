@@ -44,8 +44,9 @@ public class PlaceService {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(String.format(
-                        googlePlacesAPIendpoint + "?location=%s,%s&radius=500&type=attraction&key=" + googlekey, c.getLatitude(), c.getLongitude())))
-                .build();
+                        googlePlacesAPIendpoint + "?location=%s,%s&radius=500&type=attraction&key=" + googlekey,
+                        c.getLatitude(), c.getLongitude())))
+                        .build();
 
         String response = client
                 .send(request, HttpResponse.BodyHandlers.ofString())

@@ -8,7 +8,7 @@ public class Place {
     private String name;
     private Double rating;
     private Coordinates loc;
-    private String types;
+    private String[] types;
     private String vicinity;
     private Integer priceLvl;
     private Boolean openNow;
