@@ -1,7 +1,6 @@
 package bmg.controller;
 
 
-import bmg.model.Reservation;
 import bmg.service.ChatService;
 import bmg.model.Message;
 import org.springframework.stereotype.Controller;
@@ -35,10 +34,13 @@ public class ChatController {
         message.setTimestamp(currentTime.getTime());
         this.messages.add(message);
         this.chatService.saveChatMessage(message);
-        this.chatService.saveChatMessageInbox(message);
+        this.chatService.saveChatPrivateMessageInbox(message);
 
-        String destination = "/private/" + message.getReservationId();
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destination, message);
+        String destinationPrivateChat = "/private/" + message.getReservationId();
+        String destinationInbox = "/inbox";
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destinationPrivateChat, message);
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destinationInbox, message);
+
         return message;
     }
 
@@ -58,7 +60,7 @@ public class ChatController {
         message.setTimestamp(currentTime.getTime());
         this.messages.add(message);
         this.chatService.saveChatMessage(message);
-        this.chatService.saveChatMessageInbox(message);
+        this.chatService.saveChatPublicMessageInbox(message);
         simpMessagingTemplate.convertAndSend("/group/" + message.getReservationId(), message);
         return message;
     }
@@ -70,9 +72,9 @@ public class ChatController {
         message.setTimestamp(currentTime.getTime());
         this.messages.add(message);
         this.chatService.saveChatMessage(message);
-        this.chatService.saveChatMessageInbox(message);
+        this.chatService.saveChatPrivateMessageInbox(message);
 
-        String destination = "/inbox/" + message.getChatId();
+        String destination = "/inbox/" + message.getUserId();
         simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destination, message);
         return message;
     }

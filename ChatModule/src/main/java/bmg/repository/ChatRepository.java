@@ -3,6 +3,8 @@ package bmg.repository;
 
 import bmg.model.InboxDBRecord;
 import bmg.model.MessageDBRecord;
+import bmg.model.Reservation;
+import bmg.model.User;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 
 
@@ -134,6 +136,42 @@ public class ChatRepository {
 
         return result;
     }
+
+    /**
+     * Retrieve a userId by a username from the table User
+     */
+    public User findUsersByUserName(String username) {
+        Map<String, AttributeValue> values = new HashMap<>();
+        values.put(":pk", new AttributeValue().withS(username));
+        User result = new User();
+        return dynamoDBMapper.query(
+                User.class,
+                new DynamoDBQueryExpression<User>()
+                        .withIndexName("username-index")
+                        .withKeyConditionExpression("username = :pk")
+                        .withExpressionAttributeValues(values)
+                        .withScanIndexForward(true)
+                        .withConsistentRead(false))
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Retrieve a list of users by a given reservationId
+     */
+    public List<Reservation> findListOfUsersByReservationId(String reservationId) {
+        Map<String, AttributeValue> values = new HashMap<>();
+        values.put(":pk", new AttributeValue().withS(reservationId));
+        return dynamoDBMapper.query(
+                Reservation.class,
+                new DynamoDBQueryExpression<Reservation>()
+                        .withKeyConditionExpression("id = :pk")
+                        .withExpressionAttributeValues(values)
+                        .withScanIndexForward(true)
+                        .withConsistentRead(false));
+    }
+
 
 
 

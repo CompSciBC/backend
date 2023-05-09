@@ -1,12 +1,10 @@
 package bmg.service;
 
-import bmg.model.Message;
-import bmg.model.MessageDBRecord;
+import bmg.model.*;
 import bmg.repository.ChatRepository;
+import bmg.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import bmg.model.Reservation;
-import bmg.model.InboxDBRecord;
 
 import java.util.*;
 
@@ -18,13 +16,42 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final ReservationService reservationService;
 
-    //save a message in Chat table
+    /** save a message in Chat table
+     *
+     * @param message
+     */
     public void saveChatMessage(Message message) {
         chatRepository.saveMessageChat(convertMessageToMessageDBRecord(message));
     }
 
-    public void saveChatMessageInbox(Message message) {
-        chatRepository.saveMessageInbox(convertMessageToInboxDBRecord(message));
+    /** save a message from a Private chat in Inbox table
+     *  for both receiver and sender
+     * @param message
+     */
+
+    public void saveChatPrivateMessageInbox(Message message) {
+        chatRepository.saveMessageInbox(convertMessageToInboxDBRecordForUser(message));
+        chatRepository.saveMessageInbox(convertMessageToInboxDBRecordForReceiver(message));
+    }
+
+    /** save a message from a Group chat in Inbox table
+     *  for both all users under a certain reservation
+     * @param message
+     */
+
+    public void saveChatPublicMessageInbox(Message message) {
+        String reservationId = message.getReservationId();
+        List<String> userIdList = getUserIdWithTheSameReservationId(reservationId);
+
+        //save a message into a host inbox. A group message has a hostId as a receiverId
+        chatRepository.saveMessageInbox(convertMessageToInboxDBRecordForReceiver(message));
+
+
+        //save a message into all guests inbox
+        for (int i = 0; i < userIdList.size(); i++){
+            message.setReceiverId(userIdList.get(i));
+            chatRepository.saveMessageInbox(convertMessageToInboxDBRecordForReceiver(message));
+        }
     }
 
 
@@ -152,30 +179,31 @@ public class ChatService {
         return result;
     }
 
-//    private List<String> retrieveListOfChatIdForGivenReservationId(String reservationId) {
-//        List<String> result = new ArrayList<>();
-//        List<MessageDBRecord> messageList = chatRepository.retrieveLatestMessageForGivenReservation(reservationId);
-//
-//        for (int i = 0; i < messageList.size(); i++){
-//            String value = messageList.get(i).getChatId();
-//            result.add(value);
-//        }
-//        return result;
-//    }
-//
-//    private void retrieveMessagesForListOfChatId (List<String> chatId, Map<String, List<Message>> destination){
-//
-//        for (int i = 0; i < chatId.size(); i++){
-//            String key = chatId.get(i);
-//            List<MessageDBRecord> rawMessage = chatRepository.retrieveMessageForGivenChatId(key);
-//            List<Message> listMessageForEachChatId = new ArrayList<>();
-//            for (int index = 0; index < rawMessage.size(); index++){
-//                Message messageValue = convertMessageDBRecordToMessage(rawMessage.get(index));
-//                listMessageForEachChatId.add(messageValue);
-//            }
-//            destination.put(key, listMessageForEachChatId);
-//        }
-//    }
+    /** get a userId by a username to save a private message for both a sender and a receiver inboxes
+    */
+
+    private String getUserIdByUsername (String username){
+        User user = chatRepository.findUsersByUserName(username);
+        String userId = user.getUserID();
+        return userId;
+
+    }
+    /**get a list of users with the same reservationId aka ChatId to save a group message for all users' inboxes
+     In Group Chat ChatId ia the same as the ReservationId
+     */
+    private List<String> getUserIdWithTheSameReservationId (String reservationId) {
+        List<Reservation> reservationList = chatRepository.findListOfUsersByReservationId(reservationId);
+        List<String> userIdList = new ArrayList<>();
+
+        for (int i = 0; i < reservationList.size(); i++){
+            userIdList.add(reservationList.get(i).getId());
+        }
+        return userIdList;
+    }
+
+
+
+
 
 
     private MessageDBRecord convertMessageToMessageDBRecord (Message message){
@@ -206,7 +234,7 @@ public class ChatService {
         return message;
     }
 
-    private InboxDBRecord convertMessageToInboxDBRecord (Message message){
+    private InboxDBRecord convertMessageToInboxDBRecordForUser(Message message){
         InboxDBRecord record = new InboxDBRecord();
         record.setChatId(message.getChatId());
         record.setReservationId(message.getReservationId());
@@ -214,6 +242,27 @@ public class ChatService {
         record.setMessage(message.getMessage());
         record.setTimestamp(message.getTimestamp());
         record.setUserId(message.getUserId());
+        return record;
+    }
+
+    private InboxDBRecord convertMessageToInboxDBRecordForReceiver(Message message){
+        InboxDBRecord record = new InboxDBRecord();
+        record.setChatId(message.getChatId());
+        record.setReservationId(message.getReservationId());
+        record.setSenderName(message.getSenderName());
+
+        record.setMessage(message.getMessage());
+        record.setTimestamp(message.getTimestamp());
+
+        // a message in private chat from a guest to a host
+        if (message.getReceiverId() != null){
+            record.setUserId(message.getReceiverId());
+        }
+        // a message in private chat from a host to a guest
+        if (message.getReceiverName() != null){
+            String userIdReceiver = getUserIdByUsername(message.getReceiverName());
+            record.setUserId(userIdReceiver);
+        }
 
         return record;
     }

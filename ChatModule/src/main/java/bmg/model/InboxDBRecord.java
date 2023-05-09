@@ -19,8 +19,9 @@ public class InboxDBRecord {
     @DynamoDBHashKey(attributeName = "userId")
     private String userId;
     //Sort Key
-    @DynamoDBRangeKey(attributeName = "chatId")
-    private String chatId;
+    @DynamoDBRangeKey (attributeName = "timestamp")
+    private Long timestamp;
+
 
 
     //Attributes
@@ -28,8 +29,8 @@ public class InboxDBRecord {
     private String senderName;
     @DynamoDBAttribute (attributeName = "message")
     private String message;
-    @DynamoDBAttribute (attributeName = "timestamp")
-    private Long timestamp;
+    @DynamoDBAttribute (attributeName = "chatId")
+    private String chatId;
     @DynamoDBAttribute (attributeName = "reservationId")
     private String reservationId;
 }
