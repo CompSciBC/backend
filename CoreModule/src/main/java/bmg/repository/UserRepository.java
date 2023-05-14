@@ -38,6 +38,28 @@ public class UserRepository {
     }
 
     /**
+     * Finds list of users by their role
+     * @param id either 'host' or 'guest'
+     * @return List of User Objects
+     */
+    public List<User> findUsersByRole(String id){
+        if ((id.toLowerCase().equals("host")) || (id.toLowerCase().equals("guest"))) {
+                Map<String, AttributeValue> values = new HashMap<>();
+        values.put(":id", new AttributeValue().withS(id));
+        return MAPPER.query(
+                User.class,
+                new DynamoDBQueryExpression<User>()
+                        .withIndexName(User.Index.ROLE.getNAME())
+                        .withKeyConditionExpression("#role = :id")
+                        .withExpressionAttributeNames(Map.of("#role", "role"))
+                        .withExpressionAttributeValues(values)
+                        .withConsistentRead(false));
+        } else {
+                throw new IllegalArgumentException("role can only be 'guest' or 'host'");
+        }
+    }
+
+    /**
      * Finds users by userId
      * @param userId
      * @return List of User Objects
