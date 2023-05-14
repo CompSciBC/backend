@@ -182,7 +182,7 @@ public class ChatService {
     /** get a userId by a username to save a private message for both a sender and a receiver inboxes
     */
 
-    private String getUserIdByUsername (String username){
+    public String getUserIdByUsername (String username){
         User user = chatRepository.findUsersByUserName(username);
         String userId = user.getUserID();
         return userId;
@@ -191,12 +191,14 @@ public class ChatService {
     /**get a list of users with the same reservationId aka ChatId to save a group message for all users' inboxes
      In Group Chat ChatId ia the same as the ReservationId
      */
-    private List<String> getUserIdWithTheSameReservationId (String reservationId) {
+    public List<String> getUserIdWithTheSameReservationId (String reservationId) {
         List<Reservation> reservationList = chatRepository.findListOfUsersByReservationId(reservationId);
         List<String> userIdList = new ArrayList<>();
+        userIdList.add(reservationList.get(0).getHostId());
+
 
         for (int i = 0; i < reservationList.size(); i++){
-            userIdList.add(reservationList.get(i).getId());
+            userIdList.add(reservationList.get(i).getGuestId());
         }
         return userIdList;
     }

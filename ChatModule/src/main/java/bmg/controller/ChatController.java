@@ -1,6 +1,7 @@
 package bmg.controller;
 
 
+import bmg.model.User;
 import bmg.service.ChatService;
 import bmg.model.Message;
 import org.springframework.stereotype.Controller;
@@ -38,8 +39,13 @@ public class ChatController {
 
         String destinationPrivateChat = "/private/" + message.getReservationId();
         String destinationInbox = "/inbox";
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destinationPrivateChat, message);
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destinationInbox, message);
+        if (message.getReceiverId() == null) {
+            String username = message.getReceiverName();
+            message.setReceiverId(chatService.getUserIdByUsername(username));
+        }
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiverId(), destinationPrivateChat, message);
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiverId(), destinationInbox, message);
+        simpMessagingTemplate.convertAndSendToUser(message.getUserId(), destinationInbox, message);
 
         return message;
     }
@@ -62,6 +68,12 @@ public class ChatController {
         this.chatService.saveChatMessage(message);
         this.chatService.saveChatPublicMessageInbox(message);
         simpMessagingTemplate.convertAndSend("/group/" + message.getReservationId(), message);
+        List<String> userIdList = chatService.getUserIdWithTheSameReservationId(message.getReservationId());
+        String destinationInbox = "/inbox";
+
+        for (int i = 0; i < userIdList.size(); i++){
+            simpMessagingTemplate.convertAndSendToUser(userIdList.get(i), destinationInbox, message);
+        }
         return message;
     }
 
@@ -72,10 +84,26 @@ public class ChatController {
         message.setTimestamp(currentTime.getTime());
         this.messages.add(message);
         this.chatService.saveChatMessage(message);
-        this.chatService.saveChatPrivateMessageInbox(message);
 
         String destination = "/inbox/" + message.getUserId();
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), destination, message);
+        simpMessagingTemplate.convertAndSendToUser(message.getUserId(), destination, message);
+        if (message.getChatId() == message.getReservationId()){
+            this.chatService.saveChatMessage(message);
+            simpMessagingTemplate.convertAndSend("/group/" + message.getReservationId(), message);
+        }
+        else {
+            this.chatService.saveChatPrivateMessageInbox(message);
+            String destinationPrivateChat = "/private/" + message.getReservationId();
+            if (message.getReceiverId() != null) {
+                simpMessagingTemplate.convertAndSendToUser(message.getReceiverId(), destinationPrivateChat, message);
+            }
+            else {
+                String username = message.getReceiverName();
+                message.setReceiverId(chatService.getUserIdByUsername(username));
+                simpMessagingTemplate.convertAndSendToUser(message.getReceiverId(), destinationPrivateChat, message);
+            }
+
+        }
         return message;
     }
     @GetMapping("/load/host/{reservationId}")
