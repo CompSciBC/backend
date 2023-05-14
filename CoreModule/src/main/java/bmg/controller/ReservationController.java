@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,48 @@ public class ReservationController extends Controller<Reservation> {
         log.info("Get all reservations with {}={}", index.getKEY(), id);
 
         List<Reservation> reservations = SVC.findAll(index, id);
+        return responseCodeOk(reservations);
+    }
+
+    /**
+     * Gets all reservations for the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A response entity containing a list of reservations
+     */
+    @GetMapping("/checkoutafter")
+    public ResponseEntity<Response<Reservation>> findAllCheckOutAfter(
+            @RequestParam(name = "index") Reservation.Index index,
+            @RequestParam(name = "id") String id,
+            @RequestParam(name = "primaryOnly") boolean primaryOnly,
+            @RequestParam(name = "checkOutCutOff") LocalDateTime cutoff
+            ) {
+
+        log.info("Get all primary reservations with {}={} and checkOut date after", index.getKEY(), id, cutoff);
+
+        List<Reservation> reservations = SVC.findAllCheckOutAfter(index, id, primaryOnly, cutoff);
+        return responseCodeOk(reservations);
+    }
+
+    /**
+     * Gets all reservations for the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A response entity containing a list of reservations
+     */
+    @GetMapping("/checkinafter")
+    public ResponseEntity<Response<Reservation>> findAllCheckInAfter(
+            @RequestParam(name = "index") Reservation.Index index,
+            @RequestParam(name = "id") String id,
+            @RequestParam(name = "primaryOnly") boolean primaryOnly,
+            @RequestParam(name = "checkInCutOff") LocalDateTime cutoff
+            ) {
+
+        log.info("Get all primary reservations with {}={} and checkOut date after", index.getKEY(), id, cutoff);
+
+        List<Reservation> reservations = SVC.findAllCheckInAfter(index, id, primaryOnly, cutoff);
         return responseCodeOk(reservations);
     }
 
