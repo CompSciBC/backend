@@ -61,6 +61,26 @@ public class ReservationController extends Controller<Reservation> {
         List<Reservation> reservations = SVC.findAllCheckOutAfter(index, id, primaryOnly, cutoff);
         return responseCodeOk(reservations);
     }
+    
+    /**
+     * Gets all reservations for the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A response entity containing a list of reservations
+     */
+    @GetMapping("/checkinonorbeforecheckoutafter")
+    public ResponseEntity<Response<Reservation>> findAllCheckInOnOrBeforeCheckOutAfter(
+            @RequestParam(name = "index") Reservation.Index index,
+            @RequestParam(name = "id") String id,
+            @RequestParam(name = "primaryOnly") boolean primaryOnly,
+            @RequestParam(name = "checkInCutOff") LocalDateTime checkInCutoff,
+            @RequestParam(name = "checkOutCutOff") LocalDateTime checkOutCutoff
+            ) {
+
+        List<Reservation> reservations = SVC.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutoff, checkOutCutoff);
+        return responseCodeOk(reservations);
+    }
 
     /**
      * Gets all reservations for the given index and id
@@ -77,7 +97,7 @@ public class ReservationController extends Controller<Reservation> {
             @RequestParam(name = "checkInCutOff") LocalDateTime cutoff
             ) {
 
-        log.info("Get all primary reservations with {}={} and checkOut date after", index.getKEY(), id, cutoff);
+        log.info("Get all primary reservations with {}={} and checkin date after", index.getKEY(), id, cutoff);
 
         List<Reservation> reservations = SVC.findAllCheckInAfter(index, id, primaryOnly, cutoff);
         return responseCodeOk(reservations);
