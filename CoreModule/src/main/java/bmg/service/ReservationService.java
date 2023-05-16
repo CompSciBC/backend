@@ -51,6 +51,64 @@ public class ReservationService {
     }
 
     /**
+     * Finds all reservations with the given id and a check-out date/time after the cutoff
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @param primaryOnly If true, returns only primary reservation entries
+     * @param cutoff A date/time (exclusive)
+     * @return A list of reservations
+     */
+    public List<Reservation> findAllCheckOutAfter(Reservation.Index index,
+                                                   String id,
+                                                   boolean primaryOnly,
+                                                   LocalDateTime cutoff) {
+
+        List<Reservation> reservations = REPO.findAllCheckOutAfter(index, id, primaryOnly, cutoff);
+        assertListNotEmpty(id, reservations);
+
+        return reservations;
+    }
+
+    /**
+     * Finds all reservations with the given id and a check-in date/time after the cutoff
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @param primaryOnly If true, returns only primary reservation entries
+     * @param cutoff A date/time (exclusive)
+     * @return A list of reservations
+     */
+    public List<Reservation> findAllCheckInAfter(Reservation.Index index,
+                                                   String id,
+                                                   boolean primaryOnly,
+                                                   LocalDateTime cutoff) {
+
+        List<Reservation> reservations = REPO.findAllCheckInAfter(index, id, primaryOnly, cutoff);
+        assertListNotEmpty(id, reservations);
+        return reservations;
+    }
+
+    /**
+     * Finds all reservations with the given id and a check-in date/time after the cutoff
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @param primaryOnly If true, returns only primary reservation entries
+     * @param cutoff A date/time (exclusive)
+     * @return A list of reservations
+     */
+    public List<Reservation> findAllCheckInOnOrBeforeCheckOutAfter(Reservation.Index index,
+                                                   String id,
+                                                   boolean primaryOnly,
+                                                   LocalDateTime checkInCutOff, LocalDateTime checkOutCutOff) {
+
+        List<Reservation> reservations = REPO.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutOff, checkOutCutOff);
+        assertListNotEmpty(id, reservations);
+        return reservations;
+    }
+
+    /**
      * Finds all reservations by the given index and id
      *
      * @param index A reservation index
