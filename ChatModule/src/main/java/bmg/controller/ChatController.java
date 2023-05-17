@@ -115,7 +115,7 @@ public class ChatController {
     }
     @GetMapping("/load/guest/{reservationId}/{guestId}")
     public Map<String, List<Message>> retrieveMessagesGuest (
-            @PathVariable(name = "reservationId")String reservationId,
+            @PathVariable(name = "reservationId") String reservationId,
             @PathVariable(name = "guestId") String guestId
     ){
        return chatService.loadChatMessagesForGuest(reservationId, guestId);
