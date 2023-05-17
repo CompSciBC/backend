@@ -1,6 +1,5 @@
 package bmg.service;
 
-import bmg.dto.Guidebook;
 import bmg.repository.GuidebookRepository;
 import lombok.RequiredArgsConstructor;
 import com.amazonaws.services.s3.model.*;
@@ -26,7 +25,7 @@ public class GuidebookService {
      * @param gb Guidebook JSON file
      * @return
      */
-    public String saveGbContentToS3(String id, Guidebook gb) {
+    public String saveGbContentToS3(String id, Object gb) {
         try {
             byte[] jsonBytes = new ObjectMapper().writeValueAsBytes(gb);
             REPO.saveOne(id+"/content", new ByteArrayInputStream(jsonBytes), null);
@@ -43,12 +42,12 @@ public class GuidebookService {
      * @return Guidebook object
      * @throws IOException
      */
-    public Guidebook retrieveGbContentFromS3(String id) throws IOException {
+    public Object retrieveGbContentFromS3(String id) throws IOException {
             if (REPO.gbInfoExists(id)) {
                 S3Object response = REPO.getOne(id+"/content");
                 InputStream objectData = response.getObjectContent();
                 ObjectMapper mapper = new ObjectMapper();
-                return mapper.readValue(objectData, Guidebook.class);
+                return mapper.readValue(objectData, Object.class);
             }
         return null;
     }

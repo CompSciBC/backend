@@ -1,6 +1,5 @@
 package bmg.controller;
 
-import bmg.dto.Guidebook;
 import bmg.service.GuidebookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -10,13 +9,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
-
 @RestController
 @CrossOrigin
 @RequestMapping("/api/guidebook")
 @RequiredArgsConstructor
 @Log4j2
-public class GuidebookController extends Controller<Guidebook> {
+public class GuidebookController extends Controller<Object> {
 
     private final GuidebookService SVC;
 
@@ -27,7 +25,7 @@ public class GuidebookController extends Controller<Guidebook> {
      * @return a String denoting if saved successfully to S3
      */
     @PostMapping("/{id}/content")
-    public String saveGuidebookContent(@PathVariable(name = "id") String id, @RequestBody Guidebook gb) {
+    public String saveGuidebookContent(@PathVariable(name = "id") String id, @RequestBody Object gb) {
         log.info("Save guidebook for propertyId={}:", id);
         log.info("\tgb={}", gb);
 
@@ -41,7 +39,7 @@ public class GuidebookController extends Controller<Guidebook> {
      * @throws IOException
      */
     @GetMapping("/{id}/content")
-    public Guidebook retrieveGuidebookContent(@PathVariable(name = "id") String id) throws IOException {
+    public Object retrieveGuidebookContent(@PathVariable(name = "id") String id) throws IOException {
         log.info("Get guidebook for propertyId={}", id);
         return SVC.retrieveGbContentFromS3(id);
     }
