@@ -107,8 +107,6 @@ public class PlaceService {
         }
 
         Blob blob = new javax.sql.rowset.serial.SerialBlob(baos.toByteArray());
-        System.out.println(url);
-        System.out.println(blob);
         return blob;
     }
 }
