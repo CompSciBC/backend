@@ -1,5 +1,6 @@
 package bmg.controller;
 
+import bmg.dto.GuidebookImageMetadata;
 import bmg.service.GuidebookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -54,14 +55,21 @@ public class GuidebookController extends Controller<Object> {
      * @throws IOException
      */
     @PostMapping("/{id}/images")
-    public List<String> uploadGuidebookImages(@PathVariable(name = "id") String id, @RequestParam("files") MultipartFile[] files) throws IOException {
+    public List<String> uploadGuidebookImages(
+            @PathVariable(name = "id") String id,
+            @RequestParam("files") MultipartFile[] files,
+            @RequestParam("metadata") GuidebookImageMetadata[] metadata) throws IOException {
+
         log.info("Upload guidebook images for propertyId={}:", id);
         log.info("\tFiles:");
 
         for (MultipartFile file : files)
             log.info("\t\tsize={}, content-type={}, name={}", file.getSize(), file.getContentType(), file.getOriginalFilename());
 
-        return SVC.saveGbImagesToS3(id, files);
+        for (GuidebookImageMetadata meta : metadata)
+            log.info("\t\tcustomFileName={}, tags={}", meta.getName(), meta.getTags());
+
+        return SVC.saveGbImagesToS3(id, files, metadata);
     }
 
     /**
