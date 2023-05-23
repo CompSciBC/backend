@@ -1,8 +1,13 @@
 package bmg.service;
 import bmg.model.Survey;
+import bmg.dto.SurveyData;
+import bmg.dto.SurveyMetrics;
 import bmg.model.Reservation;
 import bmg.repository.SurveyRepository;
-
+import bmg.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -12,6 +17,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SurveyService {
     private final SurveyRepository SURVEY_REPO;
+    private final UserRepository USER_REPO;
     private final ReservationService reservationService;
 
     /**
@@ -50,6 +56,62 @@ public class SurveyService {
             surveys = SURVEY_REPO.findSurveysByIndex(Survey.Index.HOST, id);
         }
         return surveys;
+    }
+
+    /**
+     * Finds survey metrics for host
+     * @param id hostId
+     * @return 
+     * @throws JsonProcessingException
+     * @throws JsonMappingException
+     */
+    public SurveyMetrics getSurveyMetricsForHost(String id) throws JsonMappingException, JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        List<Survey> surveys = new ArrayList<Survey>();
+        surveys = SURVEY_REPO.findSurveysByIndex(Survey.Index.HOST, id);
+
+        SurveyMetrics surveyMetrics = new SurveyMetrics();
+        surveyMetrics.setHostId(id);
+        
+        // // Key = overall, per property
+        // Map<String, Object> result = new HashMap<>();
+        // Map<String, Map<String, Integer>> combinedMetrics = new HashMap<>();
+        List<SurveyData> surveyResponses = new ArrayList<>();
+        for (Survey survey : surveys) {
+            SurveyData surveyData = new SurveyData();
+            surveyData.setReservationId(survey.getReservationId());
+            surveyData.setProperty(reservationService.findOne(survey.getReservationId()).getProperty());
+            surveyData.setGuest(USER_REPO.findUsersByUserId(survey.getGuestId()).get(0));
+            surveyData.setSubmissionTime(survey.getSubmissionTime());
+            surveyData.setSurveyResponse(survey.getSurveyResponse());
+            surveyResponses.add(surveyData);
+
+            Map<String, LinkedHashMap> surveyResponse = mapper.readValue(survey.getSurveyResponse(), Map.class);
+            LinkedHashMap<String, Integer> qualityScores = surveyResponse.get("quality");
+            Map<String, Integer> qualityMetrics = new HashMap<>();
+            // myList.add(map.get("quality"));
+            for (String key : qualityScores.keySet()) {
+                qualityMetrics.put(key, qualityScores.get(key));
+                // Map<String, Integer> tally;
+                // if (combinedMetrics.containsKey(key)) {
+                //     tally = combinedMetrics.get(key);
+                //     tally.put("value", tally.get("value") + qualityScores.get(key));
+                //     tally.put("sampleSize", tally.get("sampleSize") + 1);
+
+                // } else {
+                //     tally = new HashMap<>();
+                //     tally.put("value", qualityScores.get(key));
+                //     tally.put("sampleSize", 1);
+                // }
+                // combinedMetrics.put(key, tally);
+            }
+            surveyData.setQualityMetrics(qualityMetrics);
+        }
+        surveyMetrics.setSurveyResponses(surveyResponses);
+        //     result.put(survey.getReservationId(), Map.of("qualityMetrics", surveyMetrics, "submissionTime", survey.getSubmissionTime(), "guest", USER_REPO.findUsersByUserId(survey.getGuestId()), "surveyResponse", surveyResponse));
+        // }
+        // result.put("combinedMetrics", combinedMetrics);
+        return surveyMetrics;
     }
 
     /**

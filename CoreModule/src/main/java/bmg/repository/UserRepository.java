@@ -75,6 +75,16 @@ public class UserRepository {
                  .withConsistentRead(false));
      }
 
+     /**
+     * Update a user 
+     * @param userId
+     * @return List of User Objects
+     */
+    public User updateUser(User user) {
+        MAPPER.save(user);
+        return findUsersByUserId(user.getUserID()).get(0);
+        }
+
 
 
 

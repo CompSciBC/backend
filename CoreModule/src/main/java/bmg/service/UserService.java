@@ -27,4 +27,13 @@ public class UserService {
             default -> throw new IllegalArgumentException("Index=" + index + " is not valid");
         };
     }
+
+    /**
+     * Update a user 
+     * @param userId
+     * @return List of User Objects
+     */
+    public User updateUser(User user) {
+        return USER_REPO.updateUser(user);
+    }
 }

@@ -105,6 +105,31 @@ public class ReservationRepository {
         return findAllByCondition(index.getNAME(), keys, filters, values);
     }
 
+
+    /**
+     * Finds all reservations with the given id and a check-out date/time after the cutoff
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @param primaryOnly If true, returns only primary reservation entries
+     * @param cutoff A date/time (exclusive)
+     * @return A list of reservations
+     */
+    public List<Reservation> findAllCheckOutAfter(Reservation.Index index,
+                                                   String id,
+                                                   boolean primaryOnly,
+                                                   LocalDateTime cutoff) {
+
+        Map<String, AttributeValue> values = new HashMap<>();
+        values.put(":v1", new AttributeValue().withS(id));
+        values.put(":v2", new AttributeValue().withN(convertDate(cutoff)));
+
+        String keys = String.format("%s = :v1", index.getKEY());
+        String filters = setFilters("checkOut >= :v2", values, primaryOnly);
+
+        return findAllByCondition(index.getNAME(), keys, filters, values);
+    }
+
     /**
      * Finds all reservations with the given id and check-in/out date/time between
      * the given cutoff date/times (checkIn <= checkInCutoff & checkOut > checkOutCutoff)
