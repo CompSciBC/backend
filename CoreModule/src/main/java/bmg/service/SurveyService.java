@@ -87,7 +87,7 @@ public class SurveyService {
             surveyResponses.add(surveyData);
 
             Map<String, LinkedHashMap> surveyResponse = mapper.readValue(survey.getSurveyResponse(), Map.class);
-            LinkedHashMap<String, Integer> qualityScores = surveyResponse.get("quality");
+            LinkedHashMap<String, Integer> qualityScores = surveyResponse.get("quality-rental");
             Map<String, Integer> qualityMetrics = new HashMap<>();
             // myList.add(map.get("quality"));
             for (String key : qualityScores.keySet()) {
