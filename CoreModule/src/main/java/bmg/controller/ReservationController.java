@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -95,8 +96,12 @@ public class ReservationController extends Controller<Reservation> {
             @RequestParam(name = "checkInCutOff") LocalDateTime checkInCutoff,
             @RequestParam(name = "checkOutCutOff") LocalDateTime checkOutCutoff
             ) {
-
-        List<Reservation> reservations = SVC.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutoff, checkOutCutoff);
+         List<Reservation> reservations;
+        try {
+            reservations = SVC.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutoff, checkOutCutoff);
+        } catch (Exception e) {
+            reservations = new ArrayList<>();
+        }
         return responseCodeOk(reservations);
     }
 
