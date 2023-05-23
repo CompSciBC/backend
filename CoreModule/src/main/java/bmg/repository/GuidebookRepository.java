@@ -38,8 +38,10 @@ public class GuidebookRepository {
      * @param data the item we are storing (JSON obj. in this case, or gb images)
      * @param metadata null, can contain extra data about object if we choose
      */
-    public void saveOne(String key, InputStream data, ObjectMetadata metadata){
-        S3.putObject(new PutObjectRequest(bucket, GUIDEBOOK_FOLDER+key, data, metadata));
+    public void saveOne(String key, InputStream data, ObjectMetadata metadata, List<Tag> tags){
+        PutObjectRequest request = new PutObjectRequest(bucket, GUIDEBOOK_FOLDER+key, data, metadata);
+        request.setTagging(new ObjectTagging(tags));
+        S3.putObject(request);
     }
 
     /**

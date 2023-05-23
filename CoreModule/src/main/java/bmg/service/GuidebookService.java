@@ -1,5 +1,6 @@
 package bmg.service;
 
+import bmg.dto.GuidebookImageMetadata;
 import bmg.repository.GuidebookRepository;
 import lombok.RequiredArgsConstructor;
 import com.amazonaws.services.s3.model.*;
@@ -10,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,7 +30,7 @@ public class GuidebookService {
     public String saveGbContentToS3(String id, Object gb) {
         try {
             byte[] jsonBytes = new ObjectMapper().writeValueAsBytes(gb);
-            REPO.saveOne(id+"/content", new ByteArrayInputStream(jsonBytes), null);
+            REPO.saveOne(id+"/content", new ByteArrayInputStream(jsonBytes), null, null);
             return "Saved JSON file to S3";
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,16 +61,20 @@ public class GuidebookService {
      * @return a List of Strings of object keys that have been saved in S3
      * @throws IOException
      */
-    public List<String> saveGbImagesToS3(String id, MultipartFile[] files) throws IOException {
+    public List<String> saveGbImagesToS3(String id, MultipartFile[] files, GuidebookImageMetadata[] metadata) throws IOException {
         List<String> urls = new ArrayList<>();
         String uniqueObjectKey;
-        for (MultipartFile file : files) {
-            uniqueObjectKey = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+        for (int i = 0; i < files.length; i++) {
+            MultipartFile file = files[i];
+            GuidebookImageMetadata meta = metadata[i];
+            uniqueObjectKey = UUID.randomUUID().toString() + "-" + meta.getName();
             try {
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType(file.getContentType());
-                metadata.setContentLength(file.getSize());
-                REPO.saveOne(id+"/images/"+uniqueObjectKey, file.getInputStream(), metadata);
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                objectMetadata.setContentType(file.getContentType());
+                objectMetadata.setContentLength(file.getSize());
+                List<Tag> tags = Arrays.stream(meta.getTags()).map((tag) -> new Tag(tag, "true")).toList();
+
+                REPO.saveOne(id+"/images/"+uniqueObjectKey, file.getInputStream(), objectMetadata, tags);
                 urls.add(uniqueObjectKey);
             } catch (IOException e) {
                 throw new RuntimeException("Error uploading file to S3", e);
