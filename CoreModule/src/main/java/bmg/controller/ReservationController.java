@@ -48,6 +48,24 @@ public class ReservationController extends Controller<Reservation> {
      * @param id The id of a property, host, or guest
      * @return A response entity containing a list of reservations
      */
+    @GetMapping("/nonprimary")
+    public ResponseEntity<Response<Reservation>> getAllNonPrimary(
+            @RequestParam(name = "index") Reservation.Index index,
+            @RequestParam(name = "id") String id) {
+
+        log.info("Get all reservations with {}={}", index.getKEY(), id);
+
+        List<Reservation> reservations = SVC.findAllPrimaryOnlyFalse(index, id);
+        return responseCodeOk(reservations);
+    }
+
+    /**
+     * Gets all reservations for the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A response entity containing a list of reservations
+     */
     @GetMapping("/checkoutafter")
     public ResponseEntity<Response<Reservation>> findAllCheckOutAfter(
             @RequestParam(name = "index") Reservation.Index index,

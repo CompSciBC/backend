@@ -124,6 +124,21 @@ public class ReservationService {
     }
 
     /**
+     * Finds all reservations by the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A list of reservations
+     */
+    public List<Reservation> findAllPrimaryOnlyFalse(Reservation.Index index, String id) {
+
+        // if index is property or host, return the primary reservations only
+        // if index is guest, return all reservations
+        // boolean primaryOnly = index != Reservation.Index.GUEST;
+        return REPO.findAll(index, id, false);
+    }
+
+    /**
      * Saves the given list of reservations
      *
      * @param reservations A list of reservations
