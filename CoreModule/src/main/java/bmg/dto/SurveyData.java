@@ -11,6 +11,7 @@ public class SurveyData {
     private User guest;
     private Property property;
     private Map<String, Integer> qualityMetrics;
+    private double qualityMetricsAverage;
     private LocalDateTime submissionTime;
     private String surveyResponse;
 }

@@ -88,10 +88,12 @@ public class SurveyService {
 
             Map<String, LinkedHashMap> surveyResponse = mapper.readValue(survey.getSurveyResponse(), Map.class);
             LinkedHashMap<String, Integer> qualityScores = surveyResponse.get("quality-rental");
+            int qualityMetricsAverage = 0;
             Map<String, Integer> qualityMetrics = new HashMap<>();
             // myList.add(map.get("quality"));
             for (String key : qualityScores.keySet()) {
                 qualityMetrics.put(key, qualityScores.get(key));
+                qualityMetricsAverage += qualityScores.get(key);
                 // Map<String, Integer> tally;
                 // if (combinedMetrics.containsKey(key)) {
                 //     tally = combinedMetrics.get(key);
@@ -106,6 +108,7 @@ public class SurveyService {
                 // combinedMetrics.put(key, tally);
             }
             surveyData.setQualityMetrics(qualityMetrics);
+            surveyData.setQualityMetricsAverage(qualityMetricsAverage * 1.0 /(qualityScores.keySet().size()));
         }
         surveyMetrics.setSurveyResponses(surveyResponses);
         //     result.put(survey.getReservationId(), Map.of("qualityMetrics", surveyMetrics, "submissionTime", survey.getSubmissionTime(), "guest", USER_REPO.findUsersByUserId(survey.getGuestId()), "surveyResponse", surveyResponse));
