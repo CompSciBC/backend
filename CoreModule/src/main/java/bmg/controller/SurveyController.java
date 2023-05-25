@@ -1,13 +1,21 @@
 package bmg.controller;
+import bmg.dto.SurveyMetrics;
 import bmg.model.Survey;
 import bmg.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -48,6 +56,21 @@ public class SurveyController extends Controller<Survey> {
 
         List<Survey> surveys = surveyService.findSurveysByIndex(index, id);
         return responseCodeOk(surveys); 
+    }
+
+    /**
+     * Finds survey metrics for host
+     * @param id The id of a host
+     * @return 
+     * @throws JsonProcessingException
+     * @throws JsonMappingException
+     */
+    @GetMapping("/hostmetrics")
+    @Operation(summary = "Finds survey metrics for host")
+    public ResponseEntity<SurveyMetrics> getSurveyMetricsForHost(@RequestParam(required = true) String id) throws JsonMappingException, JsonProcessingException {
+        log.info("Find survey metrics for host={}", id);
+        SurveyMetrics surveyMetrics = surveyService.getSurveyMetricsForHost(id);
+        return ResponseEntity.ok(surveyMetrics);
     }
 
     /**

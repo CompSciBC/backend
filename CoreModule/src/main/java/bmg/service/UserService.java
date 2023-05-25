@@ -18,14 +18,22 @@ public class UserService {
      * @return List of User Objects
      */
     public List<User> findUsersByIndex(String index, String id) {
-        List<User> users = new ArrayList<User>();
-        if (index.equalsIgnoreCase("userid")){
-            users = USER_REPO.findUsersByUserId(id);
-        } else if (index.equalsIgnoreCase("email")){
-            users = USER_REPO.findUsersByIndex(User.Index.EMAIL, id);
-        } else if (index.equalsIgnoreCase("username")){
-            users = USER_REPO.findUsersByIndex(User.Index.USERNAME, id);
-        }
-        return users;
+        // List<User> users = new ArrayList<User>();
+        return switch(index.toLowerCase()) {
+            case "userid" -> USER_REPO.findUsersByUserId(id);
+            case "email" -> USER_REPO.findUsersByIndex(User.Index.EMAIL, id);
+            case "username" -> USER_REPO.findUsersByIndex(User.Index.USERNAME, id);
+            case "role" -> USER_REPO.findUsersByRole(id);
+            default -> throw new IllegalArgumentException("Index=" + index + " is not valid");
+        };
+    }
+
+    /**
+     * Update a user 
+     * @param userId
+     * @return List of User Objects
+     */
+    public User updateUser(User user) {
+        return USER_REPO.updateUser(user);
     }
 }

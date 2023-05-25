@@ -16,8 +16,10 @@ public class Message {
     private Long timestamp;
     private String senderName;
     private String receiverName;
+    private String receiverId;
     private String message;
     private String chatId;
+    private String userId;
 
 }
 
