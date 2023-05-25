@@ -1,5 +1,6 @@
 package bmg.service;
 import bmg.model.Survey;
+import bmg.dto.PieChartDataPoint;
 import bmg.dto.SurveyData;
 import bmg.dto.SurveyMetrics;
 import bmg.model.Reservation;
@@ -66,16 +67,53 @@ public class SurveyService {
      * @throws JsonMappingException
      */
     public SurveyMetrics getSurveyMetricsForHost(String id) throws JsonMappingException, JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        List<Survey> surveys = new ArrayList<Survey>();
-        surveys = SURVEY_REPO.findSurveysByIndex(Survey.Index.HOST, id);
+        List<Survey> surveys = SURVEY_REPO.findSurveysByIndex(Survey.Index.HOST, id);
 
         SurveyMetrics surveyMetrics = new SurveyMetrics();
         surveyMetrics.setHostId(id);
-        
-        // // Key = overall, per property
-        // Map<String, Object> result = new HashMap<>();
-        // Map<String, Map<String, Integer>> combinedMetrics = new HashMap<>();
+        surveyMetrics.setSurveyResponses(getSurveyResponses(surveys));
+        surveyMetrics.setPieChartData(getSurveyPieChartData(surveys));
+        return surveyMetrics;
+    }
+
+    private List<PieChartDataPoint> getSurveyPieChartData(List<Survey> surveys) throws JsonMappingException, JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, PieChartDataPoint> data = new HashMap<>();
+        for (Survey survey : surveys) {
+            Map<String, LinkedHashMap> surveyResponse = mapper.readValue(survey.getSurveyResponse(), Map.class);
+            LinkedHashMap<String, Integer> qualityScores = surveyResponse.get("quality-rental");
+            for (String key : qualityScores.keySet()) {
+                if (data.containsKey(key)) {
+                    PieChartDataPoint datum = data.get(key);
+                    datum.setCount(datum.getCount() + 1);
+                    Map<Integer, Integer> m = datum.getRatingFrequencyMap();
+                    if (m.containsKey(qualityScores.get(key))) {
+                        int tally = m.get(qualityScores.get(key));
+                        m.put(qualityScores.get(key), tally + 1);
+                    } else {
+                        m.put(qualityScores.get(key), 1);
+                    }
+
+                } else {
+                    PieChartDataPoint datum = new PieChartDataPoint();
+                    datum.setName(key);
+                    datum.setCount(1);
+                    Map<Integer, Integer> m = new HashMap<>();
+                    m.put(qualityScores.get(key), 1);
+                    datum.setRatingFrequencyMap(m);
+                    data.put(key, datum);
+                }
+            }
+        }
+        List<PieChartDataPoint> pieChartData = new ArrayList<>();
+        for (String key : data.keySet()) {
+            pieChartData.add(data.get(key));
+        }
+        return pieChartData;
+    }
+
+    private List<SurveyData> getSurveyResponses(List<Survey> surveys) throws JsonMappingException, JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
         List<SurveyData> surveyResponses = new ArrayList<>();
         for (Survey survey : surveys) {
             SurveyData surveyData = new SurveyData();
@@ -85,36 +123,19 @@ public class SurveyService {
             surveyData.setSubmissionTime(survey.getSubmissionTime());
             surveyData.setSurveyResponse(survey.getSurveyResponse());
             surveyResponses.add(surveyData);
-
             Map<String, LinkedHashMap> surveyResponse = mapper.readValue(survey.getSurveyResponse(), Map.class);
             LinkedHashMap<String, Integer> qualityScores = surveyResponse.get("quality-rental");
             int qualityMetricsAverage = 0;
             Map<String, Integer> qualityMetrics = new HashMap<>();
-            // myList.add(map.get("quality"));
+
             for (String key : qualityScores.keySet()) {
                 qualityMetrics.put(key, qualityScores.get(key));
                 qualityMetricsAverage += qualityScores.get(key);
-                // Map<String, Integer> tally;
-                // if (combinedMetrics.containsKey(key)) {
-                //     tally = combinedMetrics.get(key);
-                //     tally.put("value", tally.get("value") + qualityScores.get(key));
-                //     tally.put("sampleSize", tally.get("sampleSize") + 1);
-
-                // } else {
-                //     tally = new HashMap<>();
-                //     tally.put("value", qualityScores.get(key));
-                //     tally.put("sampleSize", 1);
-                // }
-                // combinedMetrics.put(key, tally);
             }
             surveyData.setQualityMetrics(qualityMetrics);
             surveyData.setQualityMetricsAverage(qualityMetricsAverage * 1.0 /(qualityScores.keySet().size()));
         }
-        surveyMetrics.setSurveyResponses(surveyResponses);
-        //     result.put(survey.getReservationId(), Map.of("qualityMetrics", surveyMetrics, "submissionTime", survey.getSubmissionTime(), "guest", USER_REPO.findUsersByUserId(survey.getGuestId()), "surveyResponse", surveyResponse));
-        // }
-        // result.put("combinedMetrics", combinedMetrics);
-        return surveyMetrics;
+        return surveyResponses;
     }
 
     /**

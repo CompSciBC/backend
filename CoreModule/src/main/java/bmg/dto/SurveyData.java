@@ -1,5 +1,6 @@
 package bmg.dto;
 import lombok.Data;
+import java.util.List;
 import java.util.Map;
 import bmg.model.User;
 import bmg.model.Property;
