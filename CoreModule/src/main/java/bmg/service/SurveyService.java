@@ -1,5 +1,6 @@
 package bmg.service;
 import bmg.model.Survey;
+import bmg.model.Property;
 import bmg.dto.PieChartDataPoint;
 import bmg.dto.SurveyData;
 import bmg.dto.SurveyMetrics;
@@ -20,6 +21,7 @@ public class SurveyService {
     private final SurveyRepository SURVEY_REPO;
     private final UserRepository USER_REPO;
     private final ReservationService reservationService;
+    private final PropertyService propertyService;
 
     /**
      * Saves a survey response
@@ -72,16 +74,27 @@ public class SurveyService {
         SurveyMetrics surveyMetrics = new SurveyMetrics();
         surveyMetrics.setHostId(id);
         surveyMetrics.setSurveyResponses(getSurveyResponses(surveys));
-        surveyMetrics.setPieChartData(getSurveyPieChartData(surveys));
+
+        // Construct pie chart data for each property reviewed
+        List<Property> propertiesManaged = propertyService.findAll(id);
+        Map<Property, List<PieChartDataPoint>> pieChartData = new HashMap<>();
+        for (Property p: propertiesManaged) {
+            List<Survey> surveysByProperty = findSurveysByIndex("property", p.getId());
+            pieChartData.put(p, getSurveyPieChartData(surveysByProperty));
+        };
+        surveyMetrics.setPieChartData(pieChartData);
         return surveyMetrics;
     }
 
     private List<PieChartDataPoint> getSurveyPieChartData(List<Survey> surveys) throws JsonMappingException, JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
         Map<String, PieChartDataPoint> data = new HashMap<>();
+        // For each survey
         for (Survey survey : surveys) {
+            // Extract guest's quality ratings from the survey response
             Map<String, LinkedHashMap> surveyResponse = mapper.readValue(survey.getSurveyResponse(), Map.class);
             LinkedHashMap<String, Integer> qualityScores = surveyResponse.get("quality-rental");
+            // For each rating in the set of quality ratings, add to the tally of 1s, 2s, ... 5s ratings
             for (String key : qualityScores.keySet()) {
                 if (data.containsKey(key)) {
                     PieChartDataPoint datum = data.get(key);
