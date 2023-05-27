@@ -5,6 +5,7 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import java.io.InputStream;
@@ -12,9 +13,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Repository
 @RequiredArgsConstructor
+@Log4j2
 public class GuidebookRepository {
     private final AmazonS3 S3;
 
@@ -37,11 +42,13 @@ public class GuidebookRepository {
      * @param key the objectkey or folder structure we designate Ex: "/property-guidebooks/<object-key-path->"
      * @param data the item we are storing (JSON obj. in this case, or gb images)
      * @param metadata null, can contain extra data about object if we choose
+     * @return A URL pointing to the saved S3 object
      */
-    public void saveOne(String key, InputStream data, ObjectMetadata metadata, List<Tag> tags){
+    public URL saveOne(String key, InputStream data, ObjectMetadata metadata, List<Tag> tags){
         PutObjectRequest request = new PutObjectRequest(bucket, GUIDEBOOK_FOLDER+key, data, metadata);
         request.setTagging(new ObjectTagging(tags));
         S3.putObject(request);
+        return generatePresignedURL(GUIDEBOOK_FOLDER+key);
     }
 
     /**
@@ -113,5 +120,21 @@ public class GuidebookRepository {
                                                                                             // We don't know how many images the host uploaded, so we continue to get the next result set for all images
         } while(result.isTruncated());
         return objURLs;
+    }
+
+    /**
+     * Deletes the identified guidebook image
+     *
+     * @param imageUrl A URL identifying a guidebook image
+     */
+    public void deleteGuidebookImage(String imageUrl) {
+        Matcher matcher = Pattern.compile("("+GUIDEBOOK_FOLDER+".*?)\\?").matcher(imageUrl);
+
+        if (matcher.find()) {
+            S3.deleteObject(bucket, matcher.group(1));
+        } else {
+            log.error("No photo found at {}", imageUrl);
+            throw new NoSuchElementException("No photo found at " + imageUrl);
+        }
     }
 }

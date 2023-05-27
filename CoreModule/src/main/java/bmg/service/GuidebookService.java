@@ -10,10 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Repository
 @RequiredArgsConstructor
@@ -58,11 +60,11 @@ public class GuidebookService {
      * Saves the guidebook image files for a particular property in S3
      * @param id propertyID
      * @param files Multiple image files
-     * @return a List of Strings of object keys that have been saved in S3
+     * @return a List of URLs for the objects that have been saved in S3
      * @throws IOException
      */
-    public List<String> saveGbImagesToS3(String id, MultipartFile[] files, GuidebookImageMetadata[] metadata) throws IOException {
-        List<String> urls = new ArrayList<>();
+    public List<URL> saveGbImagesToS3(String id, MultipartFile[] files, GuidebookImageMetadata[] metadata) throws IOException {
+        List<URL> urls = new ArrayList<>();
         String uniqueObjectKey;
         for (int i = 0; i < files.length; i++) {
             MultipartFile file = files[i];
@@ -74,8 +76,8 @@ public class GuidebookService {
                 objectMetadata.setContentLength(file.getSize());
                 List<Tag> tags = Arrays.stream(meta.getTags()).map((tag) -> new Tag(tag, "true")).toList();
 
-                REPO.saveOne(id+"/images/"+uniqueObjectKey, file.getInputStream(), objectMetadata, tags);
-                urls.add(uniqueObjectKey);
+                URL url = REPO.saveOne(id+"/images/"+uniqueObjectKey, file.getInputStream(), objectMetadata, tags);
+                urls.add(url);
             } catch (IOException e) {
                 throw new RuntimeException("Error uploading file to S3", e);
             }
@@ -92,5 +94,14 @@ public class GuidebookService {
      */
     public void deleteGuidebook(String id) {
         REPO.deleteGbInfoNImages(id);
+    }
+
+    /**
+     * Deletes the identified guidebook image
+     *
+     * @param imageUrl A URL identifying a guidebook image
+     */
+    public void deleteGuidebookImage(String imageUrl) {
+        REPO.deleteGuidebookImage(imageUrl);
     }
 }
