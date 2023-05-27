@@ -77,10 +77,10 @@ public class SurveyService {
 
         // Construct pie chart data for each property reviewed
         List<Property> propertiesManaged = propertyService.findAll(id);
-        Map<Property, List<PieChartDataPoint>> pieChartData = new HashMap<>();
+        Map<String, List<PieChartDataPoint>> pieChartData = new HashMap<>();
         for (Property p: propertiesManaged) {
             List<Survey> surveysByProperty = findSurveysByIndex("property", p.getId());
-            pieChartData.put(p, getSurveyPieChartData(surveysByProperty));
+            pieChartData.put(p.getName(), getSurveyPieChartData(surveysByProperty));
         };
         surveyMetrics.setPieChartData(pieChartData);
         return surveyMetrics;
