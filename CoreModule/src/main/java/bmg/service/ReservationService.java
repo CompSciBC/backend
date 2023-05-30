@@ -104,7 +104,7 @@ public class ReservationService {
                                                    LocalDateTime checkInCutOff, LocalDateTime checkOutCutOff) {
 
         List<Reservation> reservations = REPO.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutOff, checkOutCutOff);
-        assertListNotEmpty(id, reservations);
+        // assertListNotEmpty(id, reservations);
         return reservations;
     }
 

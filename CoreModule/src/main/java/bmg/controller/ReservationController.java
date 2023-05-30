@@ -96,12 +96,12 @@ public class ReservationController extends Controller<Reservation> {
             @RequestParam(name = "checkInCutOff") LocalDateTime checkInCutoff,
             @RequestParam(name = "checkOutCutOff") LocalDateTime checkOutCutoff
             ) {
-         List<Reservation> reservations;
-        try {
-            reservations = SVC.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutoff, checkOutCutoff);
-        } catch (Exception e) {
-            reservations = new ArrayList<>();
-        }
+         List<Reservation> reservations = SVC.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutoff, checkOutCutoff);
+        // try {
+        //     reservations = SVC.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutoff, checkOutCutoff);
+        // } catch (Exception e) {
+        //     reservations = new ArrayList<>();
+        // }
         return responseCodeOk(reservations);
     }
 
@@ -121,12 +121,12 @@ public class ReservationController extends Controller<Reservation> {
             ) {
 
         log.info("Get all primary reservations with {}={} and checkin date after", index.getKEY(), id, cutoff);
-        List<Reservation> reservations;
-        try {
-            reservations = SVC.findAllCheckInAfter(index, id, primaryOnly, cutoff);
-        } catch (Exception e) {
-            reservations = new ArrayList<>();
-        }
+        List<Reservation> reservations = SVC.findAllCheckInAfter(index, id, primaryOnly, cutoff);
+        // try {
+        //     reservations = SVC.findAllCheckInAfter(index, id, primaryOnly, cutoff);
+        // } catch (Exception e) {
+        //     reservations = new ArrayList<>();
+        // }
         return responseCodeOk(reservations);
         // List<Reservation> reservations = SVC.findAllCheckInAfter(index, id, primaryOnly, cutoff);
         // return responseCodeOk(reservations);
