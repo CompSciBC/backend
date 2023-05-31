@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,7 +24,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 
-//@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @Service
 public class PlaceService {
 
@@ -81,17 +79,18 @@ public class PlaceService {
         List<Place> placesList = StreamSupport
                 .stream(mapper.readTree(response).get("results").spliterator(), false)
                 .map((place) -> mapper.convertValue(place, Place.class))
+                .filter(place -> !place.getUserPhotoReference().equals(""))
                 .toList();
 
 
         for (int i = 0; i < placesList.size(); i++) {
             String url = String.format(googlePlacesAPIphoto + "?maxwidth=600&photoreference=" + placesList.get(i).getUserPhotoReference() +"&key=" + googlekey);
             placesList.get(i).setPhoto(getBlobFromUrl(url));
-
         }
+
         return placesList;
     }
-    public Blob getBlobFromUrl(String url) throws IOException, InterruptedException, SQLException {
+    private Blob getBlobFromUrl(String url) throws IOException, InterruptedException, SQLException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
