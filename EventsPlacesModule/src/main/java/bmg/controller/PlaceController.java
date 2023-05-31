@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -26,7 +27,7 @@ public class PlaceController {
      * @throws ExecutionException
      */
     @GetMapping("/{address}")
-    public List<Place> getAll(@PathVariable String address) throws IOException, InterruptedException, ExecutionException {
+    public List<Place> getAll(@PathVariable String address) throws IOException, InterruptedException, ExecutionException, SQLException {
         return svc.getPlaces(address);
     }
 }

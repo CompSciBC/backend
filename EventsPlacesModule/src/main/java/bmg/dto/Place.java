@@ -2,6 +2,9 @@ package bmg.dto;
 
 import lombok.Builder;
 import lombok.Data;
+
+import java.sql.Blob;
+
 @Data
 @Builder
 public class Place {
@@ -14,4 +17,5 @@ public class Place {
     private Boolean openNow;
     private String placeID;
     private String userPhotoReference;
+    private Blob photo;
 }
