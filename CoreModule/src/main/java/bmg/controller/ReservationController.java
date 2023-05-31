@@ -3,9 +3,12 @@ package bmg.controller;
 import bmg.model.Reservation;
 import bmg.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +19,7 @@ import java.util.Map;
 @CrossOrigin
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
+@Log4j2
 public class ReservationController extends Controller<Reservation> {
 
     private final ReservationService SVC;
@@ -32,8 +36,100 @@ public class ReservationController extends Controller<Reservation> {
             @RequestParam(name = "index") Reservation.Index index,
             @RequestParam(name = "id") String id) {
 
+        log.info("Get all reservations with {}={}", index.getKEY(), id);
+
         List<Reservation> reservations = SVC.findAll(index, id);
         return responseCodeOk(reservations);
+    }
+
+    /**
+     * Gets all reservations for the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A response entity containing a list of reservations
+     */
+    @GetMapping("/nonprimary")
+    public ResponseEntity<Response<Reservation>> getAllNonPrimary(
+            @RequestParam(name = "index") Reservation.Index index,
+            @RequestParam(name = "id") String id) {
+
+        log.info("Get all reservations with {}={}", index.getKEY(), id);
+
+        List<Reservation> reservations = SVC.findAllPrimaryOnlyFalse(index, id);
+        return responseCodeOk(reservations);
+    }
+
+    /**
+     * Gets all reservations for the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A response entity containing a list of reservations
+     */
+    @GetMapping("/checkoutafter")
+    public ResponseEntity<Response<Reservation>> findAllCheckOutAfter(
+            @RequestParam(name = "index") Reservation.Index index,
+            @RequestParam(name = "id") String id,
+            @RequestParam(name = "primaryOnly") boolean primaryOnly,
+            @RequestParam(name = "checkOutCutOff") LocalDateTime cutoff
+            ) {
+
+        log.info("Get all primary reservations with {}={} and checkOut date after", index.getKEY(), id, cutoff);
+
+        List<Reservation> reservations = SVC.findAllCheckOutAfter(index, id, primaryOnly, cutoff);
+        return responseCodeOk(reservations);
+    }
+    
+    /**
+     * Gets all reservations for the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A response entity containing a list of reservations
+     */
+    @GetMapping("/checkinonorbeforecheckoutafter")
+    public ResponseEntity<Response<Reservation>> findAllCheckInOnOrBeforeCheckOutAfter(
+            @RequestParam(name = "index") Reservation.Index index,
+            @RequestParam(name = "id") String id,
+            @RequestParam(name = "primaryOnly") boolean primaryOnly,
+            @RequestParam(name = "checkInCutOff") LocalDateTime checkInCutoff,
+            @RequestParam(name = "checkOutCutOff") LocalDateTime checkOutCutoff
+            ) {
+         List<Reservation> reservations = SVC.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutoff, checkOutCutoff);
+        // try {
+        //     reservations = SVC.findAllCheckInOnOrBeforeCheckOutAfter(index, id, primaryOnly, checkInCutoff, checkOutCutoff);
+        // } catch (Exception e) {
+        //     reservations = new ArrayList<>();
+        // }
+        return responseCodeOk(reservations);
+    }
+
+    /**
+     * Gets all reservations for the given index and id
+     *
+     * @param index A reservation index
+     * @param id The id of a property, host, or guest
+     * @return A response entity containing a list of reservations
+     */
+    @GetMapping("/checkinafter")
+    public ResponseEntity<Response<Reservation>> findAllCheckInAfter(
+            @RequestParam(name = "index") Reservation.Index index,
+            @RequestParam(name = "id") String id,
+            @RequestParam(name = "primaryOnly") boolean primaryOnly,
+            @RequestParam(name = "checkInCutOff") LocalDateTime cutoff
+            ) {
+
+        log.info("Get all primary reservations with {}={} and checkin date after", index.getKEY(), id, cutoff);
+        List<Reservation> reservations = SVC.findAllCheckInAfter(index, id, primaryOnly, cutoff);
+        // try {
+        //     reservations = SVC.findAllCheckInAfter(index, id, primaryOnly, cutoff);
+        // } catch (Exception e) {
+        //     reservations = new ArrayList<>();
+        // }
+        return responseCodeOk(reservations);
+        // List<Reservation> reservations = SVC.findAllCheckInAfter(index, id, primaryOnly, cutoff);
+        // return responseCodeOk(reservations);
     }
 
     /**
@@ -48,6 +144,8 @@ public class ReservationController extends Controller<Reservation> {
     public ResponseEntity<Response<Reservation>> getAll(
             @PathVariable(name = "id") String id,
             @RequestParam(name = "primary", required = false) Boolean primary) {
+
+        log.info("Get all {}primary reservations with id={}", primary != null && primary ? "" : "non-", id);
 
         List<Reservation> reservations;
 
@@ -69,6 +167,9 @@ public class ReservationController extends Controller<Reservation> {
      */
     @PostMapping("")
     public ResponseEntity<Response<Reservation>> saveAll(@RequestBody List<Reservation> reservations) {
+        log.info("Save reservations:");
+        reservations.forEach((r) -> log.info("\t{}", r));
+
         SVC.saveAll(reservations);
 
         String location = reservations.size() == 1
@@ -88,6 +189,10 @@ public class ReservationController extends Controller<Reservation> {
     @PatchMapping("/{id}")
     public ResponseEntity<Response<Reservation>> updateAll(@PathVariable(name = "id") String id,
                                                            @RequestBody Map<String, Object> updates) {
+
+        log.info("Update all reservations with id={}:", id);
+        updates.forEach((key, value) -> log.info("\t{}={}", key, value));
+
         SVC.updateAll(id, updates);
         Reservation reservation = SVC.findOne(id);
         return responseCodeOk(List.of(reservation));
@@ -101,6 +206,8 @@ public class ReservationController extends Controller<Reservation> {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Response<Reservation>> deleteAll(@PathVariable(name = "id") String id) {
+        log.info("Delete all reservations with id={}", id);
+
         SVC.deleteAll(id);
         return responseCodeNoContent();
     }

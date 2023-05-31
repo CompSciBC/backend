@@ -1,6 +1,7 @@
 package bmg.service;
 
-import bmg.dto.Guidebook;
+import bmg.dto.GuidebookImage;
+import bmg.dto.GuidebookImageMetadata;
 import bmg.repository.GuidebookRepository;
 import lombok.RequiredArgsConstructor;
 import com.amazonaws.services.s3.model.*;
@@ -10,9 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -26,10 +25,10 @@ public class GuidebookService {
      * @param gb Guidebook JSON file
      * @return
      */
-    public String saveGbContentToS3(String id, Guidebook gb) {
+    public String saveGbContentToS3(String id, Object gb) {
         try {
             byte[] jsonBytes = new ObjectMapper().writeValueAsBytes(gb);
-            REPO.saveOne(id+"/content", new ByteArrayInputStream(jsonBytes), null);
+            REPO.saveOne(id+"/content", new ByteArrayInputStream(jsonBytes), null, null);
             return "Saved JSON file to S3";
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,12 +42,12 @@ public class GuidebookService {
      * @return Guidebook object
      * @throws IOException
      */
-    public Guidebook retrieveGbContentFromS3(String id) throws IOException {
+    public Object retrieveGbContentFromS3(String id) throws IOException {
             if (REPO.gbInfoExists(id)) {
                 S3Object response = REPO.getOne(id+"/content");
                 InputStream objectData = response.getObjectContent();
                 ObjectMapper mapper = new ObjectMapper();
-                return mapper.readValue(objectData, Guidebook.class);
+                return mapper.readValue(objectData, Object.class);
             }
         return null;
     }
@@ -57,28 +56,53 @@ public class GuidebookService {
      * Saves the guidebook image files for a particular property in S3
      * @param id propertyID
      * @param files Multiple image files
-     * @return a List of Strings of object keys that have been saved in S3
-     * @throws IOException
+     * @return a List of guidebook images that have been saved in S3
      */
-    public List<String> saveGbImagesToS3(String id, MultipartFile[] files) throws IOException {
-        List<String> urls = new ArrayList<>();
+    public List<GuidebookImage> saveGbImagesToS3(String id, MultipartFile[] files, GuidebookImageMetadata[] metadata) {
+        List<GuidebookImage> images = new ArrayList<>();
         String uniqueObjectKey;
-        for (MultipartFile file : files) {
-            uniqueObjectKey = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+        for (int i = 0; i < files.length; i++) {
+            MultipartFile file = files[i];
+            GuidebookImageMetadata meta = metadata[i];
+            uniqueObjectKey = UUID.randomUUID().toString() + "-" + meta.getName();
             try {
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType(file.getContentType());
-                metadata.setContentLength(file.getSize());
-                REPO.saveOne(id+"/images/"+uniqueObjectKey, file.getInputStream(), metadata);
-                urls.add(uniqueObjectKey);
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                objectMetadata.setContentType(file.getContentType());
+                objectMetadata.setContentLength(file.getSize());
+                objectMetadata.setUserMetadata(Map.of("fileName", meta.getName()));
+                List<Tag> tags = Arrays.stream(meta.getTags()).map((tag) -> new Tag(tag, "true")).toList();
+
+                String url = REPO
+                        .saveOne(id+"/images/"+uniqueObjectKey, file.getInputStream(), objectMetadata, tags)
+                        .toString();
+
+                images.add(GuidebookImage.builder().url(url).metadata(meta).build());
+
             } catch (IOException e) {
                 throw new RuntimeException("Error uploading file to S3", e);
             }
         }
-        return urls;
+        return images;
     }
-    public List<String> retrieveGbImagesFromS3(String id) {
-            return REPO.retrieveObjectURLs(id);
+
+    /**
+     * Retrieves all images for the identified guidebook
+     *
+     * @param id A property id
+     * @return A list of guidebook images
+     */
+    public List<GuidebookImage> retrieveGbImagesFromS3(String id) {
+        return REPO.retrieveGuidebookImages(id);
+    }
+
+    /**
+     * Retrieves the url of the featured image for the identified guidebook
+     *
+     * @param id A property id
+     * @return The first image tagged as "Featured", or the last image if no featured images exist
+     */
+    public String retrieveGbFeaturedImageFromS3(String id) {
+        return REPO.retrieveGuidebookFeaturedImage(id);
     }
 
     /**
@@ -87,5 +111,14 @@ public class GuidebookService {
      */
     public void deleteGuidebook(String id) {
         REPO.deleteGbInfoNImages(id);
+    }
+
+    /**
+     * Deletes the identified guidebook image
+     *
+     * @param imageUrl A URL identifying a guidebook image
+     */
+    public void deleteGuidebookImage(String imageUrl) {
+        REPO.deleteGuidebookImage(imageUrl);
     }
 }
