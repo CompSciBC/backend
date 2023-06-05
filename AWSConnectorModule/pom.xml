@@ -22,6 +22,10 @@
             <!-- <version>1.12.272</version> -->
         </dependency>
         <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-rekognition</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.derjust</groupId>
             <artifactId>spring-data-dynamodb</artifactId>
             <version>5.1.0</version>
