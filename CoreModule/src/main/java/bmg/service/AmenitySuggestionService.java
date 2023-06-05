@@ -50,6 +50,7 @@ public class AmenitySuggestionService {
                         .name(label.getName())
                         .confidence(label.getConfidence())
                         .parents(label.getParents().stream().map(Parent::getName).toArray(String[]::new))
+                        .boxes(label.getInstances().stream().map(Instance::getBoundingBox).toArray(BoundingBox[]::new))
                         .build();
                 suggestions.add(suggestion);
             }

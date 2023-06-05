@@ -1,5 +1,6 @@
 package bmg.dto;
 
+import com.amazonaws.services.rekognition.model.BoundingBox;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,6 +15,7 @@ public class AmenitySuggestion {
     private String name;
     private Float confidence;
     private String[] parents;
+    private BoundingBox[] boxes;
 
     @Override
     public boolean equals(Object o) {
