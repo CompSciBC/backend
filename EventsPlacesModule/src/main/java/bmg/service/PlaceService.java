@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,8 +25,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 
-//@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @Service
+@Log4j2
 public class PlaceService {
 
     @Value("${key.google}")
@@ -49,6 +49,7 @@ public class PlaceService {
      * @throws ExecutionException
      */
     public List<Place> getPlaces(String address) throws IOException, InterruptedException, ExecutionException, SQLException {
+        log.info("Entered getPlaces method. Get places list for address={}", address);
         Coordinates c = CS.getCoordinates(address);
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -73,7 +74,7 @@ public class PlaceService {
      */
     private List<Place> convertToList(String response)
             throws IOException, InterruptedException, SQLException {
-
+        log.info("Entered getPlaces convertToList method. Get places list for API response={}", response);
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.registerModule(new SimpleModule().addDeserializer(Place.class, new PlaceDeserializer()));
@@ -81,17 +82,19 @@ public class PlaceService {
         List<Place> placesList = StreamSupport
                 .stream(mapper.readTree(response).get("results").spliterator(), false)
                 .map((place) -> mapper.convertValue(place, Place.class))
+                .filter(place -> !place.getUserPhotoReference().equals(""))
                 .toList();
 
 
         for (int i = 0; i < placesList.size(); i++) {
             String url = String.format(googlePlacesAPIphoto + "?maxwidth=600&photoreference=" + placesList.get(i).getUserPhotoReference() +"&key=" + googlekey);
             placesList.get(i).setPhoto(getBlobFromUrl(url));
-
         }
+
         return placesList;
     }
-    public Blob getBlobFromUrl(String url) throws IOException, InterruptedException, SQLException {
+    private Blob getBlobFromUrl(String url) throws IOException, InterruptedException, SQLException {
+        log.info("Entered getPlaces getBlobFromURL method. Get Blob for this url={}", url);
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -107,8 +110,6 @@ public class PlaceService {
         }
 
         Blob blob = new javax.sql.rowset.serial.SerialBlob(baos.toByteArray());
-        System.out.println(url);
-        System.out.println(blob);
         return blob;
     }
 }

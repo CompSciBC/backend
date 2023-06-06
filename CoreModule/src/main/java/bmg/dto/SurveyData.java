@@ -1,5 +1,6 @@
 package bmg.dto;
 import lombok.Data;
+import java.util.List;
 import java.util.Map;
 import bmg.model.User;
 import bmg.model.Property;
@@ -11,6 +12,7 @@ public class SurveyData {
     private User guest;
     private Property property;
     private Map<String, Integer> qualityMetrics;
+    private double qualityMetricsAverage;
     private LocalDateTime submissionTime;
     private String surveyResponse;
 }
