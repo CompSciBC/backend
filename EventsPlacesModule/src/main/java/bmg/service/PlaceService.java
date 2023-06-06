@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 
 @Service
+@Log4j2
 public class PlaceService {
 
     @Value("${key.google}")
@@ -47,6 +49,7 @@ public class PlaceService {
      * @throws ExecutionException
      */
     public List<Place> getPlaces(String address) throws IOException, InterruptedException, ExecutionException, SQLException {
+        log.info("Entered getPlaces method. Get places list for address={}", address);
         Coordinates c = CS.getCoordinates(address);
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -71,7 +74,7 @@ public class PlaceService {
      */
     private List<Place> convertToList(String response)
             throws IOException, InterruptedException, SQLException {
-
+        log.info("Entered getPlaces convertToList method. Get places list for API response={}", response);
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.registerModule(new SimpleModule().addDeserializer(Place.class, new PlaceDeserializer()));
@@ -91,6 +94,7 @@ public class PlaceService {
         return placesList;
     }
     private Blob getBlobFromUrl(String url) throws IOException, InterruptedException, SQLException {
+        log.info("Entered getPlaces getBlobFromURL method. Get Blob for this url={}", url);
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
