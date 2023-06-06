@@ -3,6 +3,7 @@ package bmg.controller;
 import bmg.dto.Place;
 import bmg.service.PlaceService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
+@Log4j2
 @RequestMapping("/api/places")
 public class PlaceController {
 
@@ -28,6 +30,7 @@ public class PlaceController {
      */
     @GetMapping("/{address}")
     public List<Place> getAll(@PathVariable String address) throws IOException, InterruptedException, ExecutionException, SQLException {
+        log.info("Entered Place Controller. Get places list for address={}", address);
         return svc.getPlaces(address);
     }
 }
