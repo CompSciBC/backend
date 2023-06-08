@@ -12,6 +12,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Repository
 @RequiredArgsConstructor
@@ -120,5 +122,19 @@ public class GuidebookService {
      */
     public void deleteGuidebookImage(String imageUrl) {
         REPO.deleteGuidebookImage(imageUrl);
+    }
+
+    /**
+     * Extracts the object key portion of an image url
+     *
+     * @param imageUrl An image url
+     * @return An S3 object key
+     */
+    public String extractObjectKey(String imageUrl) {
+        Matcher matcher = Pattern
+                .compile(".*amazonaws.com/([^?]+)?")
+                .matcher(imageUrl);
+
+        return matcher.find() ? matcher.group(1) : null;
     }
 }
