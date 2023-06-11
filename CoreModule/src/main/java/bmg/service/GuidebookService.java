@@ -1,5 +1,6 @@
 package bmg.service;
 
+import bmg.dto.Dimensions;
 import bmg.dto.GuidebookImage;
 import bmg.dto.GuidebookImageMetadata;
 import bmg.repository.GuidebookRepository;
@@ -91,22 +92,22 @@ public class GuidebookService {
      * Retrieves all images for the identified guidebook
      *
      * @param id A property id
-     * @param width The desired width of the image
-     * @param height The desired height of the image
+     * @param dimensions The dimensions of the desired image (can be null)
      * @return A list of guidebook images
      */
-    public List<GuidebookImage> retrieveGbImagesFromS3(String id, Double width, Double height) {
-        return REPO.retrieveGuidebookImages(id, width, height);
+    public List<GuidebookImage> retrieveGbImagesFromS3(String id, Dimensions dimensions) {
+        return REPO.retrieveGuidebookImages(id, dimensions);
     }
 
     /**
      * Retrieves the url of the featured image for the identified guidebook
      *
      * @param id A property id
+     * @param dimensions The dimensions of the desired image (can be null)
      * @return The first image tagged as "Featured", or the last image if no featured images exist
      */
-    public String retrieveGbFeaturedImageFromS3(String id) {
-        return REPO.retrieveGuidebookFeaturedImage(id);
+    public String retrieveGbFeaturedImageFromS3(String id, Dimensions dimensions) {
+        return REPO.retrieveGuidebookFeaturedImage(id, dimensions);
     }
 
     /**

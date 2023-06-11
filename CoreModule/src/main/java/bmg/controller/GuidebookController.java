@@ -2,6 +2,7 @@ package bmg.controller;
 
 import bmg.dto.GuidebookImage;
 import bmg.dto.GuidebookImageMetadata;
+import bmg.dto.Dimensions;
 import bmg.service.GuidebookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -87,33 +88,33 @@ public class GuidebookController extends Controller<Object> {
             @PathVariable(name = "id") String id,
             @RequestParam(name = "dimensions", required = false) String dimensions) {
 
-        Double width = null;
-        Double height = null;
+        Dimensions dim = null;
 
         if (dimensions != null) {
-            Matcher matcher = Pattern
-                    .compile("(\\d+.?\\d+)[xX](\\d+.?\\d+)")
-                    .matcher(dimensions);
-
-            if (matcher.find()) {
-                width = Double.parseDouble(matcher.group(1));
-                height = Double.parseDouble(matcher.group(2));
-            } else {
-                String error = String.format("Dimensions=%s are not in the proper format of WxH", dimensions);
-                log.error(error);
-                throw new IllegalArgumentException(error);
-            }
+            dim = parseDimensions(dimensions);
+            log.info("Get guidebook images for propertyId={}, dimensions={}", id, dim.toString());
+        } else {
+            log.info("Get guidebook images for propertyId={}", id);
         }
 
-        log.info("Get guidebook images for propertyId={}"
-                + (width != null ? ", width={}, height={}" : ""), id, width, height);
-        return SVC.retrieveGbImagesFromS3(id, width, height);
+        return SVC.retrieveGbImagesFromS3(id, dim);
     }
 
     @GetMapping("/{id}/images/featured")
-    public String getFeaturedImageFromS3(@PathVariable(name = "id") String id) {
-        log.info("Get guidebook featured image for propertyId={}", id);
-        return SVC.retrieveGbFeaturedImageFromS3(id);
+    public String getFeaturedImageFromS3(
+            @PathVariable(name = "id") String id,
+            @RequestParam(name = "dimensions", required = false) String dimensions) {
+
+        Dimensions dim = null;
+
+        if (dimensions != null) {
+            dim = parseDimensions(dimensions);
+            log.info("Get guidebook featured images for propertyId={}, dimensions={}", id, dim.toString());
+        } else {
+            log.info("Get guidebook featured images for propertyId={}", id);
+        }
+
+        return SVC.retrieveGbFeaturedImageFromS3(id, dim);
     }
 
     /**
@@ -131,5 +132,27 @@ public class GuidebookController extends Controller<Object> {
         log.info("Delete image url={}", url);
         SVC.deleteGuidebookImage(url);
         return responseCodeNoContent();
+    }
+
+    /**
+     * Parses the dimensions from a dimension string
+     *
+     * @param dimensions A dimension string in format WxH
+     * @return An image dimensions object
+     */
+    private Dimensions parseDimensions(String dimensions) {
+        Matcher matcher = Pattern
+                .compile("(\\d+.?\\d+)[xX](\\d+.?\\d+)")
+                .matcher(dimensions);
+
+        if (matcher.find()) {
+            Double width = Double.parseDouble(matcher.group(1));
+            Double height = Double.parseDouble(matcher.group(2));
+            return new Dimensions(width, height);
+        } else {
+            String error = String.format("Dimensions=%s is not in the proper format of WxH", dimensions);
+            log.error(error);
+            throw new IllegalArgumentException(error);
+        }
     }
 }
