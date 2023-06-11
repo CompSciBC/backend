@@ -25,6 +25,9 @@ public class GuidebookRepository {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
+    @Value("${aws.s3.bucket.url}")
+    private String bucketUrl;
+
     private static final String GUIDEBOOK_FOLDER = "property-guidebooks/";
 
     /**
@@ -98,10 +101,15 @@ public class GuidebookRepository {
      * This method is dynamic, and items returned depend on how many objects are found at the object key path
      * Utilizes the generatePresignedURL method above
      * @param key object key path
+     * @param width The desired width of the image
+     * @param height The desired height of the image
      * @return A list of guidebook images
      */
-    public List<GuidebookImage> retrieveGuidebookImages(String key) {
+    public List<GuidebookImage> retrieveGuidebookImages(String key, Double width, Double height) {
         List<GuidebookImage> images = new ArrayList<>();
+        String dimensions = width != null && height != null
+                ? String.format("/%sx%s/images", width, height)
+                : "/images";
 
         // Create the ListObjectsV2Request, specifying we want to look at property-guidebooks/PID#######/images
         ListObjectsV2Request listObjectsV2Request = new ListObjectsV2Request()
@@ -118,7 +126,7 @@ public class GuidebookRepository {
                 metadata.setName(getObjectFileName(objectKey));
                 metadata.setTags(getObjectTags(objectKey));
 
-                String url = generatePresignedURL(objectKey).toString(); // generate the URL, format it to String
+                String url = bucketUrl + "/" + objectKey.replace("/images", dimensions);
                 images.add(GuidebookImage.builder().url(url).metadata(metadata).build());
             }
             listObjectsV2Request.setContinuationToken(result.getNextContinuationToken()); // AWS has designated when a query returns a large number of results, only a subset is returned.

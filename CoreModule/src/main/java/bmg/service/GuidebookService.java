@@ -91,10 +91,12 @@ public class GuidebookService {
      * Retrieves all images for the identified guidebook
      *
      * @param id A property id
+     * @param width The desired width of the image
+     * @param height The desired height of the image
      * @return A list of guidebook images
      */
-    public List<GuidebookImage> retrieveGbImagesFromS3(String id) {
-        return REPO.retrieveGuidebookImages(id);
+    public List<GuidebookImage> retrieveGbImagesFromS3(String id, Double width, Double height) {
+        return REPO.retrieveGuidebookImages(id, width, height);
     }
 
     /**

@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @CrossOrigin
@@ -77,12 +79,35 @@ public class GuidebookController extends Controller<Object> {
     /**
      * GET request for /api/guidebook/PID#######/images
      * @param id PropertyID
+     * @param dimensions The dimensions of the images (WxH)
      * @return a List of guidebook images from AWS S3
      */
     @GetMapping("/{id}/images")
-    public List<GuidebookImage> getImagesFromS3(@PathVariable(name = "id") String id) {
-        log.info("Get guidebook images for propertyId={}", id);
-        return SVC.retrieveGbImagesFromS3(id);
+    public List<GuidebookImage> getImagesFromS3(
+            @PathVariable(name = "id") String id,
+            @RequestParam(name = "dimensions", required = false) String dimensions) {
+
+        Double width = null;
+        Double height = null;
+
+        if (dimensions != null) {
+            Matcher matcher = Pattern
+                    .compile("(\\d+.?\\d+)[xX](\\d+.?\\d+)")
+                    .matcher(dimensions);
+
+            if (matcher.find()) {
+                width = Double.parseDouble(matcher.group(1));
+                height = Double.parseDouble(matcher.group(2));
+            } else {
+                String error = String.format("Dimensions=%s are not in the proper format of WxH", dimensions);
+                log.error(error);
+                throw new IllegalArgumentException(error);
+            }
+        }
+
+        log.info("Get guidebook images for propertyId={}"
+                + (width != null ? ", width={}, height={}" : ""), id, width, height);
+        return SVC.retrieveGbImagesFromS3(id, width, height);
     }
 
     @GetMapping("/{id}/images/featured")
