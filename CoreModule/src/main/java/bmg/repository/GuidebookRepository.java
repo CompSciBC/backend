@@ -1,5 +1,6 @@
 package bmg.repository;
 
+import bmg.dto.Dimensions;
 import bmg.dto.GuidebookImage;
 import bmg.dto.GuidebookImageMetadata;
 import com.amazonaws.HttpMethod;
@@ -24,6 +25,9 @@ public class GuidebookRepository {
 
     @Value("${aws.s3.bucket}")
     private String bucket;
+
+    @Value("${aws.s3.bucket.url}")
+    private String bucketUrl;
 
     private static final String GUIDEBOOK_FOLDER = "property-guidebooks/";
 
@@ -98,9 +102,10 @@ public class GuidebookRepository {
      * This method is dynamic, and items returned depend on how many objects are found at the object key path
      * Utilizes the generatePresignedURL method above
      * @param key object key path
+     * @param dimensions The dimensions of the desired image (can be null)
      * @return A list of guidebook images
      */
-    public List<GuidebookImage> retrieveGuidebookImages(String key) {
+    public List<GuidebookImage> retrieveGuidebookImages(String key, Dimensions dimensions) {
         List<GuidebookImage> images = new ArrayList<>();
 
         // Create the ListObjectsV2Request, specifying we want to look at property-guidebooks/PID#######/images
@@ -118,7 +123,10 @@ public class GuidebookRepository {
                 metadata.setName(getObjectFileName(objectKey));
                 metadata.setTags(getObjectTags(objectKey));
 
-                String url = generatePresignedURL(objectKey).toString(); // generate the URL, format it to String
+                String url = bucketUrl + "/" + objectKey;
+                if (dimensions != null)
+                    url = url.replace("/images", "/" + dimensions + "/images" );
+
                 images.add(GuidebookImage.builder().url(url).metadata(metadata).build());
             }
             listObjectsV2Request.setContinuationToken(result.getNextContinuationToken()); // AWS has designated when a query returns a large number of results, only a subset is returned.
@@ -131,9 +139,10 @@ public class GuidebookRepository {
      * Retrieves a featured image for the identified guidebook
      *
      * @param key A property id
+     * @param dimensions The dimensions of the desired image (can be null)
      * @return The url for the first image tagged as "Featured", or the last image if no featured images exist
      */
-    public String retrieveGuidebookFeaturedImage(String key) {
+    public String retrieveGuidebookFeaturedImage(String key, Dimensions dimensions) {
         ListObjectsV2Request request = new ListObjectsV2Request()
                 .withBucketName(bucket)
                 .withPrefix(GUIDEBOOK_FOLDER+key+"/images");
@@ -151,8 +160,14 @@ public class GuidebookRepository {
                 for (String tag : tags) {
 
                     // return last image if no featured tags found
-                    if (i == summaries.size() - 1  || tag.equalsIgnoreCase("featured"))
-                        return generatePresignedURL(objectKey).toString();
+                    if (i == summaries.size() - 1  || tag.equalsIgnoreCase("featured")) {
+                        String url = bucketUrl + "/" + objectKey;
+
+                        if (dimensions != null)
+                            url = url.replace("/images", "/" + dimensions + "/images" );
+
+                        return url;
+                    }
                 }
             }
             request.setContinuationToken(result.getNextContinuationToken());

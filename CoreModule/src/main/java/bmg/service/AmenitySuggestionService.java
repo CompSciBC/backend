@@ -24,6 +24,9 @@ public class AmenitySuggestionService {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
+    @Value("${aws.rekognition.labelInclusionFilters}")
+    private List<String> labelInclusionFilters;
+
     /**
      * Gets amenity suggestions from the given image
      *
@@ -38,8 +41,18 @@ public class AmenitySuggestionService {
 
         DetectLabelsRequest request = new DetectLabelsRequest()
                 .withImage(image)
-                .withMaxLabels(10)
+                .withMaxLabels(20)
                 .withMinConfidence(75F);
+
+        if (labelInclusionFilters.size() > 0) {
+            GeneralLabelsSettings generalLabelsSettings = new GeneralLabelsSettings()
+                    .withLabelInclusionFilters(labelInclusionFilters);
+
+            DetectLabelsSettings detectLabelsSettings = new DetectLabelsSettings()
+                    .withGeneralLabels(generalLabelsSettings);
+
+            request.setSettings(detectLabelsSettings);
+        }
 
         try {
             DetectLabelsResult result = REK.detectLabels(request);
