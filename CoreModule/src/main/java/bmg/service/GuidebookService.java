@@ -7,6 +7,7 @@ import bmg.repository.GuidebookRepository;
 import lombok.RequiredArgsConstructor;
 import com.amazonaws.services.s3.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
@@ -21,6 +22,9 @@ import java.util.regex.Pattern;
 public class GuidebookService {
 
     private final GuidebookRepository REPO;
+
+    @Value("${aws.s3.bucket.url}")
+    private String bucketUrl;
 
     /**
      * Saves a guidebook dto object to S3 for a particular property with parameter passed propertyID and Guidebook gb
@@ -135,7 +139,7 @@ public class GuidebookService {
      */
     public String extractObjectKey(String imageUrl) {
         Matcher matcher = Pattern
-                .compile(".*amazonaws.com/([^?]+)?")
+                .compile(bucketUrl+"/([^?]+)?")
                 .matcher(imageUrl);
 
         return matcher.find() ? matcher.group(1) : null;
